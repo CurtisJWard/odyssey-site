@@ -1,0 +1,144 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { livePlans, type Plan } from '../../data/plans';
+
+export function getStaticPaths() {
+  return livePlans.map(plan => ({
+    params: { slug: plan.slug },
+    props: { plan },
+  }));
+}
+
+interface Props { plan: Plan }
+const { plan } = Astro.props;
+
+const basementNote = {
+  'finished': 'Finished basement included.',
+  'framed-unfinished': 'Basement framed and ready for future finish (additional rooms/baths shown as planned expansion).',
+  'optional': 'Basement available finished or unfinished — your choice during selections.',
+}[plan.basementFinished];
+---
+
+<Layout title={`${plan.name} Floor Plan — Odyssey Homes`} description={plan.shortDescription || `${plan.name} semi-custom floor plan — ${plan.totalSqFt?.toLocaleString()} sq ft. Available in ${plan.styles.join(', ')}.`}>
+  <Header />
+
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-24">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Floor Plan</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">{plan.name}</h1>
+      {plan.shortDescription && (
+        <p class="mt-6 text-lg text-odyssey-cream/85 max-w-2xl leading-relaxed">{plan.shortDescription}</p>
+      )}
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20 grid lg:grid-cols-2 gap-12 items-start">
+      <div>
+        {plan.exteriorImage && (
+          <img src={plan.exteriorImage} alt={`${plan.name} exterior`} class="w-full aspect-[4/3] object-cover rounded" />
+        )}
+      </div>
+      <div>
+        <dl class="grid grid-cols-2 gap-y-6 gap-x-8">
+          {plan.totalSqFt && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Total</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.totalSqFt.toLocaleString()} sq ft</dd>
+            </div>
+          )}
+          {plan.mainSqFt && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Main floor</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.mainSqFt.toLocaleString()} sq ft</dd>
+            </div>
+          )}
+          {plan.basementSqFt && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Basement</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.basementSqFt.toLocaleString()} sq ft</dd>
+            </div>
+          )}
+          {plan.beds && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Bedrooms (max)</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.beds}</dd>
+            </div>
+          )}
+          {plan.baths && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Bathrooms</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.baths}</dd>
+            </div>
+          )}
+          {plan.garage && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Garage</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.garage}</dd>
+            </div>
+          )}
+          <div class="col-span-2">
+            <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Exterior styles</dt>
+            <dd class="mt-1 text-lg font-semibold text-odyssey-charcoal">{plan.styles.join(' · ')}</dd>
+          </div>
+        </dl>
+
+        {basementNote && (
+          <p class="mt-8 text-sm text-odyssey-stone-dark/80 italic">{basementNote}</p>
+        )}
+
+        {plan.description && (
+          <p class="mt-8 text-odyssey-stone-dark leading-relaxed">{plan.description}</p>
+        )}
+
+        {plan.features && plan.features.length > 0 && (
+          <ul class="mt-8 space-y-2">
+            {plan.features.map(f => (
+              <li class="flex gap-3 text-odyssey-stone-dark"><span class="text-odyssey-accent font-bold">·</span><span>{f}</span></li>
+            ))}
+          </ul>
+        )}
+
+        <a href="/lets-talk/" class="mt-10 inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {(plan.mainFloorImage || plan.basementImage) && (
+    <section class="bg-odyssey-bone">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">Floor Plans</h2>
+        <div class="mt-10 grid md:grid-cols-2 gap-8">
+          {plan.mainFloorImage && (
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent mb-3">Main floor</p>
+              <img src={plan.mainFloorImage} alt={`${plan.name} main floor plan`} class="w-full bg-white rounded p-4" />
+            </div>
+          )}
+          {plan.basementImage && (
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent mb-3">Basement</p>
+              <img src={plan.basementImage} alt={`${plan.name} basement plan`} class="w-full bg-white rounded p-4" />
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <ContactForm
+        heading={`Interested in the ${plan.name}?`}
+        intro="Tell us about your project and we'll be in touch."
+      />
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

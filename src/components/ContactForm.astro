@@ -1,0 +1,90 @@
+---
+interface Props {
+  heading?: string;
+  intro?: string;
+  variant?: 'light' | 'dark';
+}
+const { heading = "Let's get the conversation started", intro, variant = 'light' } = Astro.props;
+const isDark = variant === 'dark';
+---
+
+<div class={isDark ? 'text-odyssey-cream' : 'text-odyssey-stone-dark'}>
+  <h2 class={isDark ? 'text-3xl lg:text-4xl font-semibold tracking-tight' : 'text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal'}>
+    {heading}
+  </h2>
+  {intro && (
+    <p class={isDark ? 'mt-4 text-odyssey-cream/85 leading-relaxed max-w-2xl' : 'mt-4 text-odyssey-stone-dark/85 leading-relaxed max-w-2xl'}>
+      {intro}
+    </p>
+  )}
+
+  <form id="contact-form" class="mt-8 grid sm:grid-cols-2 gap-4 max-w-2xl">
+    <label class="block">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>First name *</span>
+      <input type="text" name="first-name" required autocomplete="given-name"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream placeholder-odyssey-cream/40 px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'} />
+    </label>
+    <label class="block">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Last name *</span>
+      <input type="text" name="last-name" required autocomplete="family-name"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream placeholder-odyssey-cream/40 px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'} />
+    </label>
+    <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Email *</span>
+      <input type="email" name="email" required autocomplete="email"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream placeholder-odyssey-cream/40 px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'} />
+    </label>
+    <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Phone</span>
+      <input type="tel" name="phone" autocomplete="tel"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream placeholder-odyssey-cream/40 px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'} />
+    </label>
+    <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Message</span>
+      <textarea name="message" rows="4"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream placeholder-odyssey-cream/40 px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'}></textarea>
+    </label>
+    <div class="sm:col-span-2 flex items-center gap-4">
+      <button type="submit" class="bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold px-6 py-3 rounded uppercase tracking-wider text-sm transition-colors">
+        Send Message
+      </button>
+      <p id="form-status" class={isDark ? 'text-sm text-odyssey-cream/80' : 'text-sm text-odyssey-stone-dark/80'}></p>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const status = document.getElementById('form-status');
+  if (form && status) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          body: new FormData(form),
+        });
+        const data = await res.json() as { ok: boolean; error?: string };
+        if (data.ok) {
+          form.reset();
+          status.textContent = 'Thanks for reaching out, we will be in touch with you soon.';
+        } else {
+          status.textContent = data.error || 'Something went wrong. Please call (208) 450-5500.';
+        }
+      } catch {
+        status.textContent = 'Something went wrong. Please call (208) 450-5500.';
+      }
+    });
+  }
+</script>

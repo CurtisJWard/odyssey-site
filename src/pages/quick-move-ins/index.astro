@@ -1,0 +1,43 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ContactForm from '../../components/ContactForm.astro';
+---
+
+<Layout title="Quick Move-Ins — Odyssey Homes" description="From fully completed homes to those still in progress, our quick move-in selection is designed to meet your needs.">
+  <Header />
+
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Quick Move-Ins</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Move In Sooner</h1>
+      <p class="mt-6 text-lg text-odyssey-cream/85 max-w-2xl leading-relaxed">
+        From fully completed homes to those still in progress, our selection is designed to meet your needs.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-odyssey-bone">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-20 text-center">
+      <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">Inventory changes weekly.</h2>
+      <p class="mt-4 text-odyssey-stone-dark leading-relaxed">
+        Some Quick Move-In homes aren't listed online — contact us for the latest availability, address details, finishes, and pricing.
+      </p>
+      <a href="/lets-talk/" class="mt-8 inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+        Get Started
+      </a>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <ContactForm
+        heading="Looking for a home you can move into soon?"
+        intro="We'll send you our current Quick Move-In inventory."
+      />
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

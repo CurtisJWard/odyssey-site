@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  /* Odyssey Homes palette — warm earth tones matching the current brand */
+  --color-odyssey-cream: #F5EFE6;
+  --color-odyssey-bone: #FAF7F2;
+  --color-odyssey-sand: #E8DFD0;
+  --color-odyssey-stone: #8B7E6D;
+  --color-odyssey-stone-dark: #4A4238;
+  --color-odyssey-charcoal: #2A2522;
+  --color-odyssey-accent: #B8946A;
+  --color-odyssey-accent-deep: #9A7950;
+  --color-odyssey-accent-light: #D4B895;
+
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-body: "Montserrat", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-odyssey-stone-dark);
+}

@@ -1,0 +1,9 @@
+name = "odyssey-site"
+compatibility_date = "2026-05-19"
+pages_build_output_dir = "dist"
+
+# Public-form vars (read by functions/api/contact.ts).
+# RESEND_API_KEY is stored as a secret in the Pages dashboard, NOT here.
+[vars]
+FORM_RECIPIENTS = "office@buildodyssey.com"
+FORM_FROM = "Odyssey Homes <noreply@buildodyssey.com>"

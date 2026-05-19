@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { communities } from '../../data/communities';
+---
+
+<Layout title="Communities — Odyssey Homes" description="Find your perfect home in an Odyssey Homes community. Granite Creek, Hawks Landing, and Sand Creek Estates coming soon.">
+  <Header />
+
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Communities</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Find Your Perfect Home in an Odyssey Homes Community</h1>
+      <p class="mt-6 text-lg text-odyssey-cream/85 max-w-2xl leading-relaxed">
+        From selecting a floor plan to choosing finishes, our team will guide you every step of the way.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-odyssey-bone">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <div class="grid md:grid-cols-3 gap-8">
+        {communities.map(c => (
+          <div class="bg-white rounded overflow-hidden shadow-sm">
+            <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
+              <img src={c.image} alt={c.name} class="w-full h-full object-cover" />
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="text-2xl font-semibold text-odyssey-charcoal">{c.name}</h3>
+                {c.status === 'coming-soon' && (
+                  <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent shrink-0">Coming Soon</span>
+                )}
+              </div>
+              <p class="mt-3 text-sm text-odyssey-stone-dark leading-relaxed">{c.description}</p>
+              <a href="/lets-talk/" class="mt-5 inline-block text-sm font-semibold text-odyssey-accent uppercase tracking-wider hover:text-odyssey-accent-deep transition-colors">
+                Get Started →
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <ContactForm
+        heading="Have a community in mind?"
+        intro="Tell us where you'd like to build and we'll share what's available."
+      />
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

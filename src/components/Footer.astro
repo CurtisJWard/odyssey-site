@@ -1,0 +1,47 @@
+---
+import { site } from '../data/site';
+---
+
+<footer class="bg-odyssey-charcoal text-odyssey-cream">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 grid md:grid-cols-4 gap-10">
+    <div class="md:col-span-2">
+      <img src="/images/odysseyhomes-horizontallogo-white.png" alt={site.name} class="h-16 w-auto mb-6" />
+      <p class="text-sm leading-relaxed text-odyssey-cream/80 max-w-md">
+        Your trusted Idaho Falls semi-custom home builder. Building your dream home should be an inspiring and seamless experience.
+      </p>
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent-light">Visit us</p>
+      {site.addresses.map(addr => (
+        <p class="mt-3 text-sm leading-relaxed text-odyssey-cream/80">
+          {addr.line1}<br />
+          {addr.line2}
+        </p>
+      ))}
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent-light">Contact</p>
+      <p class="mt-3 text-sm leading-relaxed text-odyssey-cream/80">
+        <a href={site.phoneHref} class="hover:text-odyssey-accent-light transition-colors">{site.phone}</a><br />
+        <a href={site.emailHref} class="hover:text-odyssey-accent-light transition-colors">{site.email}</a>
+      </p>
+      <div class="mt-4 flex gap-4">
+        <a href={site.social.facebook} target="_blank" rel="noopener" aria-label="Facebook" class="text-odyssey-cream/70 hover:text-odyssey-accent-light transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396V21.5z"/></svg>
+        </a>
+        <a href={site.social.instagram} target="_blank" rel="noopener" aria-label="Instagram" class="text-odyssey-cream/70 hover:text-odyssey-accent-light transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-odyssey-cream/10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-5 text-xs text-odyssey-cream/60 flex flex-col md:flex-row justify-between gap-2">
+      <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
+      <p><a href="/terms-conditions/" class="hover:text-odyssey-accent-light transition-colors">Terms & Conditions</a></p>
+    </div>
+  </div>
+</footer>

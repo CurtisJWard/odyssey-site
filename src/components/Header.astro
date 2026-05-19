@@ -1,0 +1,39 @@
+---
+import { site } from '../data/site';
+
+const navItems = [
+  { label: 'Floor Plans', href: '/semi-custom-home-floor-plans/' },
+  { label: 'Communities', href: '/communities/' },
+  { label: 'Quick Move-Ins', href: '/quick-move-ins/' },
+  { label: 'Warranty', href: '/warranty/' },
+  { label: 'About', href: '/meet-the-team/' },
+  { label: 'Blog', href: '/blog/' },
+];
+---
+
+<header class="sticky top-0 z-50 bg-odyssey-charcoal/95 backdrop-blur border-b border-odyssey-accent/20 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <img src="/images/odysseyhomes-horizontallogo-white.png" alt={site.name} class="h-12 w-auto" />
+    </a>
+    <nav class="hidden lg:flex gap-7 text-sm font-semibold text-odyssey-cream uppercase tracking-wider">
+      {navItems.map(item => (
+        <a href={item.href} class="hover:text-odyssey-accent-light transition-colors">{item.label}</a>
+      ))}
+    </nav>
+    <a href="/lets-talk/" class="hidden md:inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold px-5 py-2 rounded text-sm uppercase tracking-wider transition-colors shrink-0">
+      Let's Talk
+    </a>
+    <details class="lg:hidden text-odyssey-cream">
+      <summary class="cursor-pointer list-none p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </summary>
+      <div class="absolute right-4 mt-2 bg-odyssey-charcoal border border-odyssey-accent/20 rounded shadow-lg py-2 min-w-[200px]">
+        {navItems.map(item => (
+          <a href={item.href} class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider hover:bg-odyssey-stone-dark transition-colors">{item.label}</a>
+        ))}
+        <a href="/lets-talk/" class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider text-odyssey-accent-light hover:bg-odyssey-stone-dark transition-colors">Let's Talk</a>
+      </div>
+    </details>
+  </div>
+</header>

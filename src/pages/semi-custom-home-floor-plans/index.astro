@@ -1,0 +1,56 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { plans } from '../../data/plans';
+---
+
+<Layout title="Floor Plans — Odyssey Homes" description="Browse our customizable semi-custom floor plans. Twelve base plans, three exterior styles each — Farmhouse, Modern, and Traditional.">
+  <Header />
+
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Semi-Custom Floor Plans</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Choose a Plan and Make It Your Own</h1>
+      <p class="mt-6 text-lg text-odyssey-cream/85 max-w-2xl leading-relaxed">
+        We invite you to bring customization home. Twelve base plans, three exterior styles each — Farmhouse, Modern, and Traditional.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-odyssey-bone">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {plans.map(plan => (
+          plan.status === 'live' ? (
+            <a href={`/semi-custom-home-floor-plans/${plan.slug}/`} class="group block bg-white rounded overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
+                {plan.exteriorImage && (
+                  <img src={plan.exteriorImage} alt={plan.name} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                )}
+              </div>
+              <div class="p-6">
+                <h3 class="text-2xl font-semibold text-odyssey-charcoal">{plan.name}</h3>
+                <p class="mt-2 text-sm text-odyssey-stone">{plan.totalSqFt?.toLocaleString()} sq ft · {plan.beds} bed · {plan.baths} bath</p>
+                <p class="mt-2 text-xs text-odyssey-stone uppercase tracking-wider">{plan.styles.join(' · ')}</p>
+                <p class="mt-4 text-sm font-semibold text-odyssey-accent uppercase tracking-wider">View plan →</p>
+              </div>
+            </a>
+          ) : (
+            <div class="block bg-white/60 rounded overflow-hidden border-2 border-dashed border-odyssey-stone/30">
+              <div class="aspect-[4/3] bg-odyssey-sand/50 flex items-center justify-center">
+                <p class="text-odyssey-stone font-semibold uppercase tracking-widest text-sm">Coming Soon</p>
+              </div>
+              <div class="p-6">
+                <h3 class="text-2xl font-semibold text-odyssey-charcoal/70">{plan.name}</h3>
+                <p class="mt-2 text-sm text-odyssey-stone">Up-and-coming plan — details soon.</p>
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
