@@ -29,20 +29,6 @@ const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    {/*
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      ⚠️  PRE-LAUNCH LOCKDOWN — REMOVE THIS BLOCK AT DNS CUTOVER ⚠️
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      Blocks crawlers from indexing the preview deployment. When
-      buildodyssey.com DNS cuts over to Cloudflare Pages:
-        1. DELETE this <meta name="robots"> tag
-        2. DELETE public/robots.txt
-        3. Build + deploy
-        4. Submit buildodyssey.com to Google Search Console
-      Added 2026-05-26 per SEO consultant guidance.
-    */}
-    <meta name="robots" content="noindex,nofollow" />
-
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
