@@ -183,6 +183,28 @@ The Apps Script web app is deployed as "Execute as: Me (Curtis), Who has access:
 
 ---
 
+## Related skill (cross-link)
+
+There's a complementary skill at `Odyssey Team Folder/Claude Notes/.claude/skills/maintain-upgrades-options-app/SKILL.md` (Google Drive). That skill covers the same Apps Script project from the **configurator / sales-team perspective** — Sheet conventions for the tier groups, the user-role system (Owner / Agent Admin / Customer-Client), the lot picker UX, the `(Please Select One)` and `(Plan Specific)` markers, the one-time data-migration functions, and the function-dropdown `doGet` gotcha.
+
+**Differences:**
+- `apps-script-ops` (this skill): marketing-site/dev focused. Clasp workflow, deployment cycle, API endpoints, sheet/calendar IDs.
+- `maintain-upgrades-options-app`: configurator/sales-team focused. Sheet conventions, tier groups, user roles, lot picker UX, one-time migrations.
+
+Load both when the request spans both surfaces (e.g., "add a new API endpoint that exposes the configurator's tier data," or "the lot picker on the configurator should match what shows on /available-lots/").
+
+## Lot data — single source of truth (added 2026-05-26)
+
+As of 2026-05-26, the configurator's `getLots()` function now reads from the master Lot Inventory Sheet (`1ES3JjgZ...`) via `getInventoryForWebsite_()` — same source the marketing site `/available-lots/` page uses. The configurator's old bound-Sheet `Available Lots` tab is deprecated (kept as a legacy fallback in `getLotsFromBoundSheetLegacy_()`).
+
+This means: edit the master Sheet → both surfaces update.
+- Configurator: instantly on next page load (Apps Script reads live)
+- Marketing site: within ~1 hour (hourly GitHub Actions cron) or instantly on push to main
+
+City column drives permit/water/sewer/gas defaults on the configurator: Ammon, Idaho Falls, Shelley, Rigby recognized.
+
+---
+
 ## Updating this skill
 
 When you change the Apps Script's deployment process, add a new endpoint, rotate a sheet ID, or change the rotation calendar conventions, update this file.
