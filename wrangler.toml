@@ -2,8 +2,22 @@ name = "odyssey-site"
 compatibility_date = "2026-05-19"
 pages_build_output_dir = "dist"
 
-# Public-form vars (read by functions/api/contact.ts).
+# Public-form vars (read by functions/api/contact.ts and realtor-intro.ts).
 # RESEND_API_KEY is stored as a secret in the Pages dashboard, NOT here.
+#
+# FORM_RECIPIENTS is the FALLBACK only — used when no rotation event matches
+# today and we can't route to a specific on-duty rep. Fan-out to all reps so
+# nothing falls through. office@ is intentionally NOT here (it's invoice-only,
+# not monitored by sales).
 [vars]
-FORM_RECIPIENTS = "office@buildodyssey.com"
+FORM_RECIPIENTS = "kaysha@buildodyssey.com,susan@buildodyssey.com,gary@buildodyssey.com"
 FORM_FROM = "Odyssey Homes <noreply@buildodyssey.com>"
+
+# Silent leadership/ops BCC on every form submission. Dedup'd against the
+# primary recipient so no one gets the same email twice. Update this list
+# (then push a deploy) to add/remove people who should see every lead.
+FORM_BCC = "curtis@buildodyssey.com,derek@buildodyssey.com,natasha@buildodyssey.com"
+
+# Apps Script web app endpoint that returns today's on-call agent for /estimate.
+# Read by functions/api/todays-agent.ts. Public read-only — no secret.
+TODAYS_AGENT_URL = "https://script.google.com/macros/s/AKfycbwig8pHV3LOZlBRHzEMJrKvzyMAcjQFo7R4hsKBTDo_PrRYP3GM5DBYTbAnZUf_AWvZww/exec?api=todays-agent"

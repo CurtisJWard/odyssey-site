@@ -1,10 +1,18 @@
 ---
 import { site } from '../data/site';
 
-const navItems = [
+// Primary navigation — the top-level pages buyers care about most.
+// Kept lean (5 items) to avoid header crowding on desktop.
+const primaryNav = [
   { label: 'Floor Plans', href: '/semi-custom-home-floor-plans/' },
-  { label: 'Communities', href: '/communities/' },
+  { label: 'Available Lots', href: '/available-lots/' },
   { label: 'Quick Move-Ins', href: '/quick-move-ins/' },
+  { label: 'Build Estimate', href: '/estimate/' },
+  { label: 'Videos', href: '/videos/' },
+];
+
+// Secondary nav — surfaced via a "More" dropdown on desktop, inline on mobile.
+const moreNav = [
   { label: 'Warranty', href: '/warranty/' },
   { label: 'About', href: '/meet-the-team/' },
   { label: 'Blog', href: '/blog/' },
@@ -16,23 +24,56 @@ const navItems = [
     <a href="/" class="flex items-center gap-3 shrink-0">
       <img src="/images/odysseyhomes-horizontallogo-white.png" alt={site.name} class="h-12 w-auto" />
     </a>
-    <nav class="hidden lg:flex gap-7 text-sm font-semibold text-odyssey-cream uppercase tracking-wider">
-      {navItems.map(item => (
+
+    <!-- Desktop nav -->
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-odyssey-cream uppercase tracking-wider">
+      {primaryNav.map(item => (
         <a href={item.href} class="hover:text-odyssey-accent-light transition-colors">{item.label}</a>
       ))}
+
+      <!-- More dropdown -->
+      <details class="relative group">
+        <summary class="cursor-pointer list-none inline-flex items-center gap-1 hover:text-odyssey-accent-light transition-colors">
+          More
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-open:rotate-180" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </summary>
+        <div class="absolute right-0 top-full mt-2 bg-odyssey-charcoal border border-odyssey-accent/20 rounded shadow-lg py-2 min-w-[180px]">
+          {moreNav.map(item => (
+            <a href={item.href} class="block px-4 py-2 text-sm hover:bg-odyssey-stone-dark hover:text-odyssey-accent-light transition-colors">{item.label}</a>
+          ))}
+        </div>
+      </details>
     </nav>
+
+    <!-- Right-side CTA -->
     <a href="/lets-talk/" class="hidden md:inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold px-5 py-2 rounded text-sm uppercase tracking-wider transition-colors shrink-0">
       Let's Talk
     </a>
+
+    <!-- Mobile menu -->
     <details class="lg:hidden text-odyssey-cream">
       <summary class="cursor-pointer list-none p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
       </summary>
-      <div class="absolute right-4 mt-2 bg-odyssey-charcoal border border-odyssey-accent/20 rounded shadow-lg py-2 min-w-[200px]">
-        {navItems.map(item => (
+      <div class="absolute right-4 mt-2 bg-odyssey-charcoal border border-odyssey-accent/20 rounded shadow-lg py-2 min-w-[220px]">
+        {primaryNav.map(item => (
           <a href={item.href} class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider hover:bg-odyssey-stone-dark transition-colors">{item.label}</a>
         ))}
-        <a href="/lets-talk/" class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider text-odyssey-accent-light hover:bg-odyssey-stone-dark transition-colors">Let's Talk</a>
+        <div class="border-t border-odyssey-accent/15 mt-1 pt-1">
+          {moreNav.map(item => (
+            <a href={item.href} class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider hover:bg-odyssey-stone-dark transition-colors">{item.label}</a>
+          ))}
+        </div>
+        <div class="border-t border-odyssey-accent/15 mt-1 pt-1">
+          <a href="/lets-talk/" class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider text-odyssey-accent-light hover:bg-odyssey-stone-dark transition-colors">Let's Talk</a>
+          <a href={site.clientPortalUrl} target="_blank" rel="noopener" class="block px-4 py-2 text-sm font-semibold uppercase tracking-wider text-odyssey-cream/70 hover:bg-odyssey-stone-dark transition-colors">Client Login →</a>
+        </div>
       </div>
     </details>
   </div>

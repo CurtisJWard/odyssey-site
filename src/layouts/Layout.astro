@@ -5,13 +5,22 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  /** Override canonical URL for unusual cases. Default = production apex + current pathname. */
+  canonical?: string;
 }
 
 const {
-  title = 'Odyssey Homes — Idaho Falls Semi-Custom Home Builder',
-  description = 'Odyssey Homes is your trusted Idaho Falls semi-custom home builder. Choose from our floor plans, customize finishes, and build your dream home in one of our exclusive communities.',
+  title = 'Odyssey Homes — Eastern Idaho New Construction Home Builder',
+  description = 'Odyssey Homes builds new construction semi-custom homes across Eastern Idaho — Idaho Falls, Ammon, Rigby, Rexburg, Shelley, and Blackfoot. New homes only — we do not do remodels.',
   ogImage = '/images/odyssey-logo-rgb.png',
+  canonical,
 } = Astro.props;
+
+// Canonicals always point to the apex production domain, regardless of which
+// URL serves the page (preview.buildodyssey.com, *.pages.dev hash URLs, etc.).
+// Prevents duplicate-content penalties post-DNS-cutover.
+const PRODUCTION_BASE = 'https://buildodyssey.com';
+const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
 ---
 
 <!DOCTYPE html>
@@ -19,17 +28,81 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {/*
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      ⚠️  PRE-LAUNCH LOCKDOWN — REMOVE THIS BLOCK AT DNS CUTOVER ⚠️
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      Blocks crawlers from indexing the preview deployment. When
+      buildodyssey.com DNS cuts over to Cloudflare Pages:
+        1. DELETE this <meta name="robots"> tag
+        2. DELETE public/robots.txt
+        3. Build + deploy
+        4. Submit buildodyssey.com to Google Search Console
+      Added 2026-05-26 per SEO consultant guidance.
+    */}
+    <meta name="robots" content="noindex,nofollow" />
+
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+
+    {/* Per-page head additions — pages inject page-specific JSON-LD schema,
+        additional meta, etc. via <Fragment slot="head">...</Fragment> */}
+    <slot name="head" />
+
+    {/* JSON-LD structured data — HomeAndConstructionBusiness schema.
+        Helps Google generate rich snippets (location pin, hours, reviews)
+        for branded and "Idaho Falls home builder" searches. */}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HomeAndConstructionBusiness",
+      "name": "Odyssey Homes",
+      "description": "New construction semi-custom home builder serving Eastern Idaho — Idaho Falls, Ammon, Rigby, Rexburg, Shelley, and Blackfoot. Locally owned. 12 floor plans, five active communities. New homes only; we do not perform remodels.",
+      "url": "https://buildodyssey.com",
+      "telephone": "+1-208-450-5500",
+      "email": "office@buildodyssey.com",
+      "image": "https://buildodyssey.com/images/odyssey-logo-rgb.png",
+      "logo": "https://buildodyssey.com/images/odyssey-logo-rgb.png",
+      "priceRange": "$$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "2999 Lancer Avenue",
+        "addressLocality": "Ammon",
+        "addressRegion": "ID",
+        "postalCode": "83406",
+        "addressCountry": "US"
+      },
+      "areaServed": [
+        { "@type": "City", "name": "Idaho Falls" },
+        { "@type": "City", "name": "Ammon" },
+        { "@type": "City", "name": "Rigby" },
+        { "@type": "City", "name": "Rexburg" },
+        { "@type": "City", "name": "Shelley" },
+        { "@type": "City", "name": "Blackfoot" },
+        { "@type": "City", "name": "Iona" },
+        { "@type": "City", "name": "Ucon" },
+        { "@type": "AdministrativeArea", "name": "Bonneville County, Idaho" },
+        { "@type": "AdministrativeArea", "name": "Jefferson County, Idaho" },
+        { "@type": "AdministrativeArea", "name": "Madison County, Idaho" },
+        { "@type": "AdministrativeArea", "name": "Bingham County, Idaho" }
+      ],
+      "serviceType": "New Construction Home Building",
+      "sameAs": [
+        "https://www.facebook.com/buildodyssey/",
+        "https://www.instagram.com/buildodyssey/"
+      ]
+    })}></script>
     <meta property="og:type" content="website" />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" />
   </head>
   <body class="bg-odyssey-bone">
     <slot />

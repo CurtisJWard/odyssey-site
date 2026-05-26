@@ -1,19 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  /* Odyssey Homes palette — warm earth tones matching the current brand */
-  --color-odyssey-cream: #F5EFE6;
-  --color-odyssey-bone: #FAF7F2;
-  --color-odyssey-sand: #E8DFD0;
-  --color-odyssey-stone: #8B7E6D;
-  --color-odyssey-stone-dark: #4A4238;
-  --color-odyssey-charcoal: #2A2522;
-  --color-odyssey-accent: #B8946A;
-  --color-odyssey-accent-deep: #9A7950;
-  --color-odyssey-accent-light: #D4B895;
+  /* Odyssey Homes palette — pulled from the live site's CSS tokens.
+     Primary brand color is a deep indigo (#2B2E83). Names kept stable
+     so existing class usage in pages doesn't have to change. */
 
-  --font-display: "Montserrat", system-ui, sans-serif;
-  --font-body: "Montserrat", system-ui, sans-serif;
+  /* Backgrounds */
+  --color-odyssey-cream: #FAFAFA;      /* near-white body bg (was warm cream) */
+  --color-odyssey-bone: #FAFAFA;       /* alt near-white bg */
+  --color-odyssey-sand: #E2E3F2;       /* pale lavender — image placeholders, accent panels */
+
+  /* Text + neutrals */
+  --color-odyssey-text: #202020;       /* primary body text */
+  --color-odyssey-stone: #999999;      /* muted gray — eyebrow labels on light */
+  --color-odyssey-stone-dark: #202020; /* body text (was warm dark brown) */
+  --color-odyssey-warm-gray: #575656;  /* warm dark gray — secondary headings */
+
+  /* Brand */
+  --color-odyssey-charcoal: #333458;       /* dark indigo navy — hero, nav, dark sections */
+  --color-odyssey-charcoal-deeper: #2B2E83;/* deep indigo — primary brand */
+  --color-odyssey-accent: #2B2E83;         /* primary CTA color (was warm brass) */
+  --color-odyssey-accent-deep: #272972;    /* hover state */
+  --color-odyssey-accent-light: #E2E3F2;   /* pale lavender — eyebrow labels on dark */
+
+  /* Typography — match the live site */
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-display: "Josefin Sans", system-ui, sans-serif;
+  --font-heading: "Josefin Sans", system-ui, sans-serif;
 }
 
 html {
@@ -22,5 +35,16 @@ html {
 
 body {
   font-family: var(--font-body);
-  color: var(--color-odyssey-stone-dark);
+  color: var(--color-odyssey-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+/* Secondary headings — Josefin Sans 500 uppercase per the live brand */
+.eyebrow,
+.uppercase {
+  font-family: var(--font-heading);
 }
