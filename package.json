@@ -7,6 +7,10 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "sync-lots": "node scripts/sync-lots-from-master-sheet.mjs",
+    "sync-jobs": "node scripts/sync-odyssey-jobs.mjs",
+    "sync-all": "npm run sync-jobs && npm run sync-lots",
+    "prebuild": "npm run sync-all",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -19,5 +23,8 @@
   },
   "devDependencies": {
     "wrangler": "^4.93.0"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }

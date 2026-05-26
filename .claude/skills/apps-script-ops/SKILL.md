@@ -1,0 +1,188 @@
+---
+name: apps-script-ops
+description: Maintain the Google Apps Script backend that powers buildodyssey.com's /estimate tool, today's-on-call-agent widget, and live lot inventory API. Use this when Curtis asks to "update the rotation calendar logic", "fix the lot inventory sync", "redeploy the Apps Script", "add a new endpoint", "change which agents are in the rotation", or any similar request involving the backend script at ~/Odyssey-Code/upgrades-and-options/. Covers the dev workflow (clasp push/pull), the web app deployment cycle, the key functions, how the script talks to Google Sheets and Calendar, and the secret-handling gotchas.
+---
+
+# Apps Script Ops
+
+The Apps Script project powers three things on buildodyssey.com:
+
+1. **`/estimate` Upgrades & Options tool** — the gated calculator buyers + Realtors use to build their estimate. The Apps Script renders the HTML, handles login, reads sheet data, generates PDFs.
+2. **`/api/todays-agent`** — returns who's on-call today (read from a rotation calendar) + showroom open/closed status. Powers the live widget on the homepage + `/estimate`.
+3. **`/api/lot-inventory`** — returns the master lot inventory as clean JSON for the website to consume.
+
+Code lives at `~/Odyssey-Code/upgrades-and-options/`. Managed locally via `clasp` (Google's CLI for Apps Script).
+
+## Identity / locations
+
+| Thing | Value |
+|---|---|
+| Script ID | `1qALJkhqZBEpiqY7MWCuh2iMh12m-S3OPqHTwwbcperplctMH9cZhkO0S` |
+| Local repo | `~/Odyssey-Code/upgrades-and-options/` |
+| Apps Script editor URL | https://script.google.com/d/1qALJkhqZBEpiqY7MWCuh2iMh12m-S3OPqHTwwbcperplctMH9cZhkO0S/edit |
+| Deployed web app URL | https://script.google.com/macros/s/AKfycbwBvVqPNsbBx23CNytvk2L8Ld_yAD120qsmZhWOtyBZ/exec |
+| Rotation calendar ID | `c_b9e33b242c27c5ae55d17297fe51a9c7f221be06cfb2d0db718a85732cbf7d42@group.calendar.google.com` |
+| Lot Inventory sheet ID | `1ES3JjgZaqj_uEci3DdExDF-eC8eumDz0wrvb8avEB9g` |
+| Job Progress sheet ID | `1tWrK9tvOyNCl5WcPUXNzYmHKU_1VEpD8A5yKiGk54Z8` |
+
+## Dev workflow
+
+### Pulling latest from the cloud
+
+```bash
+cd ~/Odyssey-Code/upgrades-and-options
+npx -y @google/clasp pull
+```
+
+Use this when someone has edited the script directly in the Apps Script editor and you want to sync those changes locally before editing.
+
+### Pushing local changes to the cloud
+
+```bash
+cd ~/Odyssey-Code/upgrades-and-options
+npx -y @google/clasp push --force
+```
+
+The `--force` flag bypasses interactive prompts. Safe — `clasp push` won't delete anything that isn't tracked.
+
+**This only updates the source files in the project.** It does NOT update the live `/exec` URL — for that, see "Deploying" below.
+
+### Deploying (publishing a new version to the /exec URL)
+
+After `clasp push`, the new code is in the cloud but the live deployment still serves the OLD version. To publish:
+
+1. Open the Apps Script editor (URL above)
+2. Click **Deploy → Manage deployments**
+3. Click the pencil icon next to the active deployment
+4. Change **Version** to **New version**
+5. Click **Deploy**
+
+The `/exec` URL stays the same. Old versions are archived (you can roll back from the same menu).
+
+**When is a redeploy required?**
+- The `doGet` function changed (handles URL params, returns HTML or JSON)
+- An endpoint behavior changed (e.g., `?api=todays-agent`)
+- The HTML templates (`Index.html`, etc.) changed
+- A secret/property changed (PropertiesService)
+
+**When is a redeploy NOT required?**
+- Functions only invoked from the Apps Script editor (like `syncJobsToLotInventory`) — they always run the latest code on the project. Redeployment is only about the WEB APP endpoint.
+
+## The key functions
+
+(Documented in detail at the top of `Code.js`.)
+
+| Function | Purpose | When to run |
+|---|---|---|
+| `doGet(e)` | Entry point for the web app. Routes `?api=` requests to JSON, default to HTML render. | Auto, on every web app hit. |
+| `getTodaysAgent_()` | Reads the rotation calendar, returns the on-call agent. | Auto, when `/api/todays-agent` is hit. |
+| `getInventoryForWebsite_()` | Reads the master Lot Inventory sheet, returns clean JSON. | Auto, when `/api/lot-inventory` is hit. |
+| `syncJobsToLotInventory()` | Pulls Job Progress → updates statuses + appends new rows. | Auto every Monday 6am (via trigger). Or manually after big job-progress changes. |
+| `updateGraniteCreekDiv3Addresses()` | One-time backfill of GC Div 3 addresses from the recorded plat. | Manual, once. |
+| `buildMasterLotInventory()` | Creates the master Lot Inventory sheet from scratch. | Manual, only when migrating to a new sheet. |
+| `installWeeklyTrigger()` | Sets up the Monday 6am auto-sync trigger. | Run once after any deployment that changes triggers. |
+| `applyStatusValidation()` | Adds a Status dropdown to the Lot Inventory sheet. | Manual, after building a fresh sheet. |
+| `debugLotInventory()` | Dumps the sheet structure + sample rows for troubleshooting. | Manual, when something looks off. |
+| `testLotInventoryApi()` | Logs the `/api/lot-inventory` payload locally. | Manual, when verifying the API. |
+
+## How to invoke a function manually
+
+From the Apps Script editor:
+
+1. Open the editor (URL above)
+2. In the function dropdown (top toolbar), select the function
+3. Click **Run**
+4. Check **View → Logs** for output
+
+Functions ending in `_` are private (can't be called from the editor dropdown — they're helpers).
+
+## Rotation calendar
+
+Events on the calendar drive who's on call. Event titles must follow the convention:
+
+| Title pattern | What it means |
+|---|---|
+| `Kaysha Work Model` | Kaysha is in the showroom, open during the event hours |
+| `Susan On Call` | Susan handles phone/forms but the showroom is closed |
+| `Gary Off-site` | Gary covers remotely (showroom closed) |
+| `Kaysha Covering` | Same as On Call |
+| `Anything else` | Ignored by the matcher |
+
+Keyword matching (case-insensitive):
+- `"work model"` → showroom open
+- `"on call"`, `"closed"`, `"covering"`, `"off-site"`, `"off site"` → showroom closed
+
+To add a new rep:
+1. Add their entry to `TODAYS_AGENT_DIRECTORY_` in `Code.js` (firstName, name, phone, email, photo)
+2. `clasp push` + redeploy
+3. They can now appear in calendar events with their first name in the title
+
+**Don't put personal cell numbers in `TODAYS_AGENT_DIRECTORY_`.** All `phone` values should be the office routing number `(208) 450-5500`. If we ever do SMS notifications (Twilio), personal cells go in PropertiesService, not in code.
+
+## Secret handling
+
+The script uses `PropertiesService.getScriptProperties()` for any value that shouldn't be in source code. Common keys:
+- (None currently — no secrets needed for the read-only public endpoints)
+
+If we add Twilio or another paid API later, the auth keys MUST go in PropertiesService, never in `Code.js`.
+
+## The Lot Inventory sheet
+
+The Apps Script reads from sheet ID `1ES3JjgZaqj_uEci3DdExDF-eC8eumDz0wrvb8avEB9g`. The sheet has one tab called `Lots` with this schema:
+
+| Column | Type |
+|---|---|
+| Subdivision | text |
+| Division | number |
+| Block | number |
+| Lot | number |
+| Lot Info | text (auto: `L<lot> B<block> D<division>`) |
+| Address | text |
+| City | text |
+| Acres | number |
+| Price | number |
+| Status | enum (`Available`, `Spec in Progress`, `Reserved`, `Under Contract`, `Sold`) |
+| We Own | enum (`Yes`, `No`) |
+| Notes | text |
+| Last Updated | date |
+
+The Apps Script's `getInventoryForWebsite_()` reads these columns and returns clean JSON to the website. If the schema changes, update that function too.
+
+## The Job Progress sheet (read-only from script's perspective)
+
+Sheet ID `1tWrK9tvOyNCl5WcPUXNzYmHKU_1VEpD8A5yKiGk54Z8`. Buildertrend exports + Curtis's manual updates flow into this sheet. The Apps Script reads it to:
+
+- Drive the weekly status sync (`syncJobsToLotInventory`)
+- Pull spec home data (tentative completion = dig date + 7 months)
+
+The script never writes back to Job Progress.
+
+## Common failure modes
+
+### "Calendar not accessible"
+
+The running user (Curtis) has lost access to the rotation calendar. Re-share it with `curtis@buildodyssey.com` at "See all event details" or higher.
+
+### "Missing required columns in master sheet"
+
+The Lot Inventory sheet has been renamed, moved, or had its columns reorganized. Run `debugLotInventory()` to see what columns exist. Re-add missing ones or update the constant `LOT_INVENTORY_SHEET_ID_` to point at the right sheet.
+
+### Web app returns old data
+
+You pushed code with `clasp push` but didn't redeploy. The `/exec` URL serves the deployed version, not the latest. See "Deploying" above.
+
+### Quota / rate limit errors
+
+Apps Script has daily quotas (URL fetches, calendar reads, etc.). For a low-traffic site like buildodyssey.com, you'll never hit them — but if you do, throttle the website's fetch frequency or add caching at the Cloudflare Pages Function layer.
+
+## Architecture context
+
+The website talks to Apps Script via Cloudflare Pages Functions (proxies). Direct browser → Apps Script fetches would fail CORS, so we route through `/api/todays-agent` (Pages Function) → Apps Script `?api=todays-agent`. The Pages Function caches responses at the edge.
+
+The Apps Script web app is deployed as "Execute as: Me (Curtis), Who has access: Anyone". That's required for unauthenticated reads from the website.
+
+---
+
+## Updating this skill
+
+When you change the Apps Script's deployment process, add a new endpoint, rotate a sheet ID, or change the rotation calendar conventions, update this file.
