@@ -1,0 +1,71 @@
+---
+/**
+ * Auto-generates BreadcrumbList JSON-LD schema from the current URL path.
+ *
+ * Usage in any page (inside <Layout>):
+ *   <Fragment slot="head">
+ *     <Breadcrumbs />
+ *   </Fragment>
+ *
+ * Builds breadcrumb trail from URL path segments. Skips the homepage
+ * (which doesn't need a breadcrumb). Slugs are humanized for display labels.
+ */
+
+const BASE_URL = 'https://buildodyssey.com';
+const pathname = Astro.url.pathname;
+
+// Skip rendering on the homepage (no breadcrumb needed)
+const isHomepage = pathname === '/' || pathname === '';
+
+// Split into segments, ignore empty strings
+const segments = pathname.split('/').filter(Boolean);
+
+// Manual label overrides for slugs that don't humanize cleanly
+const LABEL_OVERRIDES: Record<string, string> = {
+  'estimate': 'Build Your Estimate',
+  'lets-talk': "Let's Talk",
+  'semi-custom-home-floor-plans': 'Floor Plans',
+  'available-lots': 'Available Lots',
+  'quick-move-ins': 'Quick Move-Ins',
+  'meet-the-team': 'Meet the Team',
+  'moving-to-eastern-idaho': 'Moving to Eastern Idaho',
+  'terms-conditions': 'Terms & Conditions',
+};
+
+function humanize(slug: string): string {
+  if (LABEL_OVERRIDES[slug]) return LABEL_OVERRIDES[slug];
+  return slug
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Build items: Home → segment1 → segment2 → ...
+const items = !isHomepage
+  ? [
+      { name: 'Home', url: `${BASE_URL}/` },
+      ...segments.map((seg, i) => {
+        const path = '/' + segments.slice(0, i + 1).join('/') + '/';
+        return {
+          name: humanize(seg),
+          url: `${BASE_URL}${path}`,
+        };
+      }),
+    ]
+  : [];
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.name,
+    item: item.url,
+  })),
+};
+---
+
+{!isHomepage && (
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+)}

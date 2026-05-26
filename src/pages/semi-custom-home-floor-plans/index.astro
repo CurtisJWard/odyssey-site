@@ -2,10 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { plans } from '../../data/plans';
 ---
 
 <Layout title="Floor Plans — Odyssey Homes" description="Browse our customizable semi-custom floor plans. Twelve base plans, three exterior styles each — Farmhouse, Modern, and Traditional.">
+  <Fragment slot="head">
+    <Breadcrumbs />
+  </Fragment>
   <Header />
 
   <section class="bg-odyssey-charcoal text-odyssey-cream">
@@ -20,30 +24,49 @@ import { plans } from '../../data/plans';
 
   <section class="bg-odyssey-bone">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- 2-column grid on desktop with wide cinematic tiles — matches the
+           native 3:1 aspect of the new rendering format. Old/square legacy
+           renderings get vertically cropped (home stays centered) until they
+           get replaced with new wide renderings. -->
+      <div class="grid md:grid-cols-2 gap-8 lg:gap-10">
         {plans.map(plan => (
           plan.status === 'live' ? (
-            <a href={`/semi-custom-home-floor-plans/${plan.slug}/`} class="group block bg-white rounded overflow-hidden hover:shadow-lg transition-shadow">
-              <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
+            <a href={`/semi-custom-home-floor-plans/${plan.slug}/`} class="group block bg-white rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <div class="aspect-[3/1] bg-odyssey-sand overflow-hidden">
                 {plan.exteriorImage && (
                   <img src={plan.exteriorImage} alt={plan.name} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 )}
               </div>
-              <div class="p-6">
-                <h3 class="text-2xl font-semibold text-odyssey-charcoal">{plan.name}</h3>
-                <p class="mt-2 text-sm text-odyssey-stone">{plan.totalSqFt?.toLocaleString()} sq ft · {plan.beds} bed · {plan.baths} bath</p>
-                <p class="mt-2 text-xs text-odyssey-stone uppercase tracking-wider">{plan.styles.join(' · ')}</p>
-                <p class="mt-4 text-sm font-semibold text-odyssey-accent uppercase tracking-wider">View plan →</p>
+              <div class="p-6 lg:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <h3 class="text-2xl lg:text-3xl font-semibold text-odyssey-charcoal">{plan.name}</h3>
+                  <p class="mt-2 text-sm text-odyssey-stone">{plan.totalSqFt?.toLocaleString()} sq ft · {plan.beds} bed · {plan.baths} bath · {plan.garage} garage</p>
+                  <p class="mt-1 text-xs text-odyssey-stone uppercase tracking-wider">{plan.styles.join(' · ')}</p>
+                </div>
+                <p class="text-sm font-semibold text-odyssey-accent uppercase tracking-wider whitespace-nowrap self-end sm:self-start">View plan →</p>
               </div>
             </a>
           ) : (
-            <div class="block bg-white/60 rounded overflow-hidden border-2 border-dashed border-odyssey-stone/30">
-              <div class="aspect-[4/3] bg-odyssey-sand/50 flex items-center justify-center">
-                <p class="text-odyssey-stone font-semibold uppercase tracking-widest text-sm">Coming Soon</p>
+            <div class="block bg-white rounded-lg overflow-hidden border border-odyssey-stone/20 relative">
+              <div class="aspect-[3/1] bg-odyssey-sand/50 overflow-hidden relative">
+                {plan.exteriorImage ? (
+                  <img src={plan.exteriorImage} alt={plan.name} class="w-full h-full object-cover" />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center border-2 border-dashed border-odyssey-stone/30">
+                    <p class="text-odyssey-stone font-semibold uppercase tracking-widest text-sm">Rendering coming</p>
+                  </div>
+                )}
+                <div class="absolute top-3 right-3 bg-odyssey-accent text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded shadow">Coming Soon</div>
               </div>
-              <div class="p-6">
-                <h3 class="text-2xl font-semibold text-odyssey-charcoal/70">{plan.name}</h3>
-                <p class="mt-2 text-sm text-odyssey-stone">Up-and-coming plan — details soon.</p>
+              <div class="p-6 lg:p-7">
+                <h3 class="text-2xl lg:text-3xl font-semibold text-odyssey-charcoal">{plan.name}</h3>
+                <p class="mt-1 text-xs text-odyssey-stone uppercase tracking-wider">{plan.styles.join(' · ')}</p>
+                {plan.mainSqFt && plan.basementSqFt && (
+                  <p class="mt-2 text-sm text-odyssey-stone">{(plan.mainSqFt + plan.basementSqFt).toLocaleString()} sq ft total · details coming soon</p>
+                )}
+                {!(plan.mainSqFt && plan.basementSqFt) && (
+                  <p class="mt-2 text-sm text-odyssey-stone">Full details coming soon — contact us for current info.</p>
+                )}
               </div>
             </div>
           )

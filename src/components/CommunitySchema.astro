@@ -1,0 +1,64 @@
+---
+/**
+ * Per-community Place JSON-LD schema for /available-lots/<slug>/ pages.
+ *
+ * Usage:
+ *   <Fragment slot="head">
+ *     <CommunitySchema community={community} />
+ *   </Fragment>
+ *
+ * Pulls data from the Community object — keep communities.ts as source of truth.
+ */
+
+import type { Community } from '../data/communities';
+
+interface Props { community: Community }
+const { community } = Astro.props;
+
+const BASE_URL = 'https://buildodyssey.com';
+const communityUrl = `${BASE_URL}/available-lots/${community.slug}/`;
+const imageUrl = community.heroImage || community.image
+  ? `${BASE_URL}${community.heroImage || community.image}`
+  : `${BASE_URL}/images/odyssey-logo-rgb.png`;
+
+// Map community address → city for the schema
+function cityFromAddress(addr: string | undefined): string {
+  if (!addr) return 'Eastern Idaho';
+  const a = addr.toLowerCase();
+  if (a.includes('idaho falls')) return 'Idaho Falls';
+  if (a.includes('ammon')) return 'Ammon';
+  if (a.includes('shelley')) return 'Shelley';
+  if (a.includes('rigby')) return 'Rigby';
+  if (a.includes('rexburg')) return 'Rexburg';
+  if (a.includes('blackfoot')) return 'Blackfoot';
+  return 'Eastern Idaho';
+}
+
+const city = cityFromAddress(community.address);
+
+// Extract highlights as amenityFeature entries
+const amenities = (community.highlights || []).map(h => ({
+  '@type': 'LocationFeatureSpecification',
+  name: h.title,
+  value: h.body,
+}));
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Place',
+  '@id': communityUrl,
+  name: community.name,
+  description: community.longDescription || community.description,
+  url: communityUrl,
+  image: imageUrl,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: city,
+    addressRegion: 'ID',
+    addressCountry: 'US',
+  },
+  ...(amenities.length > 0 ? { amenityFeature: amenities } : {}),
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

@@ -3,7 +3,9 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
-import { livePlans, type Plan } from '../../data/plans';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FloorPlanSchema from '../../components/FloorPlanSchema.astro';
+import { livePlans, STANDARD_FEATURES, type Plan } from '../../data/plans';
 
 export function getStaticPaths() {
   return livePlans.map(plan => ({
@@ -23,6 +25,10 @@ const basementNote = {
 ---
 
 <Layout title={`${plan.name} Floor Plan — Odyssey Homes`} description={plan.shortDescription || `${plan.name} semi-custom floor plan — ${plan.totalSqFt?.toLocaleString()} sq ft. Available in ${plan.styles.join(', ')}.`}>
+  <Fragment slot="head">
+    <FloorPlanSchema plan={plan} />
+    <Breadcrumbs />
+  </Fragment>
   <Header />
 
   <section class="bg-odyssey-charcoal text-odyssey-cream">
@@ -39,7 +45,7 @@ const basementNote = {
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20 grid lg:grid-cols-2 gap-12 items-start">
       <div>
         {plan.exteriorImage && (
-          <img src={plan.exteriorImage} alt={`${plan.name} exterior`} class="w-full aspect-[4/3] object-cover rounded" />
+          <img src={plan.exteriorImage} alt={`${plan.name} exterior`} class="w-full h-auto rounded bg-odyssey-sand" />
         )}
       </div>
       <div>
@@ -54,6 +60,12 @@ const basementNote = {
             <div>
               <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Main floor</dt>
               <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.mainSqFt.toLocaleString()} sq ft</dd>
+            </div>
+          )}
+          {plan.upperSqFt && (
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Upper floor</dt>
+              <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.upperSqFt.toLocaleString()} sq ft</dd>
             </div>
           )}
           {plan.basementSqFt && (
@@ -78,6 +90,9 @@ const basementNote = {
             <div>
               <dt class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Garage</dt>
               <dd class="mt-1 text-2xl font-bold text-odyssey-charcoal">{plan.garage}</dd>
+              {plan.garageOption && (
+                <p class="text-xs text-odyssey-stone mt-1">{plan.garageOption}</p>
+              )}
             </div>
           )}
           <div class="col-span-2">
@@ -106,6 +121,25 @@ const basementNote = {
           Get Started
         </a>
       </div>
+    </div>
+  </section>
+
+  <!-- Universal standard features included in every plan -->
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+      <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent-light">Included in every {plan.name}</p>
+      <h2 class="mt-2 text-3xl lg:text-4xl font-semibold tracking-tight text-white">Standard Features</h2>
+      <p class="mt-4 text-odyssey-cream/80 leading-relaxed max-w-2xl">
+        Every Odyssey home comes with these finishes standard — no upgrade required. Customize beyond this list during selections.
+      </p>
+      <ul class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3 text-sm">
+        {STANDARD_FEATURES.map(feat => (
+          <li class="flex gap-2 text-odyssey-cream/90">
+            <span class="text-odyssey-accent-light shrink-0">✓</span>
+            <span>{feat}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 

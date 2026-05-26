@@ -1,0 +1,366 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CommunitySchema from '../../components/CommunitySchema.astro';
+import { communities, type Community } from '../../data/communities';
+import { specHomesByCommunity } from '../../data/specHomes';
+import { lotsByCommunity, type LotStatus } from '../../data/lots';
+
+const lotStatusLabels: Record<LotStatus, string> = {
+  'available': 'Available',
+  'reserved': 'Reserved',
+  'spec-in-progress': 'Spec in Progress',
+  'under-contract': 'Under Contract',
+  'sold': 'Sold',
+};
+
+function fmtPrice(price?: number): string {
+  if (price === undefined) return 'Coming Soon';
+  return '$' + price.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+function fmtSize(lot: { acres?: number; sqFt?: number }): string {
+  if (lot.acres !== undefined) return `${lot.acres.toFixed(3)} ac`;
+  if (lot.sqFt !== undefined) return `${lot.sqFt.toLocaleString()} sq ft`;
+  return '—';
+}
+import { plans } from '../../data/plans';
+import { site } from '../../data/site';
+
+export function getStaticPaths() {
+  return communities.map(c => ({
+    params: { slug: c.slug },
+    props: { community: c },
+  }));
+}
+
+interface Props { community: Community }
+const { community } = Astro.props;
+
+const specs = specHomesByCommunity(community.slug);
+const lots = lotsByCommunity(community.slug);
+const planBySlug = new Map(plans.map(p => [p.slug, p]));
+const heroImage = community.heroImage || community.image;
+---
+
+<Layout
+  title={`${community.name} — Odyssey Homes`}
+  description={community.longDescription || community.description}
+>
+  <Fragment slot="head">
+    <CommunitySchema community={community} />
+    <Breadcrumbs />
+  </Fragment>
+  <Header />
+
+  <!-- Hero -->
+  <section class="relative bg-odyssey-charcoal overflow-hidden">
+    <div class="absolute inset-0">
+      {heroImage && (
+        <img src={heroImage} alt="" class="w-full h-full object-cover opacity-50" />
+      )}
+      <div class="absolute inset-0 bg-gradient-to-r from-odyssey-charcoal/80 via-odyssey-charcoal/55 to-odyssey-charcoal/30"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Community</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">{community.name}</h1>
+      {community.address && (
+        <p class="mt-4 text-odyssey-cream/80 text-sm uppercase tracking-widest">{community.address}</p>
+      )}
+      <p class="mt-6 text-lg lg:text-xl text-odyssey-cream/95 max-w-3xl leading-relaxed">
+        {community.longDescription || community.description}
+      </p>
+      {community.platMaps && community.platMaps.length > 0 && (
+        <div class="mt-10">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-odyssey-accent-light mb-3">
+            {community.platMaps.length > 1 ? 'View plat maps' : 'View plat map'}
+          </p>
+          <div class="flex flex-wrap gap-3">
+            {community.platMaps.map(pm => (
+              <a
+                href={pm.pdf}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-3 bg-white text-odyssey-charcoal hover:bg-odyssey-accent hover:text-white font-semibold px-5 py-3 rounded shadow-md transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <polyline points="9 15 12 12 15 15"/>
+                </svg>
+                <span>
+                  <span class="block leading-tight">{pm.label}</span>
+                  <span class="block text-xs font-normal opacity-70 uppercase tracking-wider mt-0.5">Open PDF →</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Highlights (selling points) -->
+  {community.highlights && community.highlights.length > 0 && (
+    <section class="bg-odyssey-bone">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Why {community.name}</p>
+        <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">What makes it special</h2>
+        <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {community.highlights.map(h => (
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <h3 class="text-lg font-semibold text-odyssey-charcoal">{h.title}</h3>
+              <p class="mt-2 text-sm text-odyssey-stone-dark leading-relaxed">{h.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Community essentials (HOA, etc.) — only renders if there's content to show -->
+  {community.hoa && (
+    <section class="bg-white border-y border-odyssey-stone/15">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10 lg:py-12">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase mb-4">Things to know</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-odyssey-bone rounded-lg p-5">
+            <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">HOA Fee</p>
+            <p class="mt-2 text-2xl font-bold text-odyssey-charcoal">
+              ${community.hoa.amount.toLocaleString()}<span class="text-base font-normal text-odyssey-stone-dark">/{community.hoa.cadence === 'annual' ? 'year' : community.hoa.cadence === 'monthly' ? 'month' : 'quarter'}</span>
+            </p>
+            {community.hoa.description && (
+              <p class="mt-2 text-sm text-odyssey-stone-dark leading-relaxed">{community.hoa.description}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Gallery -->
+  {community.gallery && community.gallery.length > 0 && (
+    <section class="bg-white">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Around the Community</p>
+        <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">Take a look</h2>
+        <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3 lg:gap-4">
+          {community.gallery.map((photo, idx) => (
+            <div class={`overflow-hidden rounded-lg bg-odyssey-sand ${idx === 0 ? 'col-span-2 row-span-2 md:col-span-2 md:row-span-2' : ''}`}>
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                loading="lazy"
+                class={`w-full ${idx === 0 ? 'h-full' : 'h-full'} object-cover hover:scale-105 transition-transform duration-700`}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Spec Homes in this Community -->
+  {specs.length > 0 && (
+    <section class="bg-odyssey-bone">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Homes in Progress</p>
+        <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">Available Quick Move-Ins</h2>
+        <p class="mt-4 text-odyssey-stone-dark max-w-2xl leading-relaxed">
+          Homes Odyssey is building in {community.name} right now. Claim one at any stage — earlier means more finish customization, later means move in sooner.
+        </p>
+
+        <div class="mt-10 bg-white rounded-lg shadow-sm overflow-hidden">
+          <!-- Desktop table -->
+          <div class="hidden md:block">
+            <table class="w-full text-sm">
+              <thead class="bg-odyssey-charcoal text-odyssey-cream">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Address</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Lot</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Floor Plan</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Completion</th>
+                  <th class="px-4 py-3 text-right font-semibold uppercase tracking-wider text-xs"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {specs.map((spec, idx) => {
+                  const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-odyssey-bone';
+                  const plan = planBySlug.get(spec.planSlug);
+                  const planLive = plan?.status === 'live';
+                  return (
+                    <tr class={`${rowBg} border-t border-odyssey-stone/10 ${spec.status === 'sold' ? 'opacity-60' : ''}`}>
+                      <td class="px-4 py-3 font-semibold text-odyssey-charcoal">{spec.address}</td>
+                      <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.lotNumber}</td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        {planLive ? (
+                          <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
+                        ) : (
+                          <span class="font-semibold text-odyssey-stone-dark">{plan?.name || spec.planSlug}</span>
+                        )}
+                      </td>
+                      <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.tentativeCompletion}</td>
+                      <td class="px-4 py-3 text-right whitespace-nowrap">
+                        {spec.status === 'available' && (
+                          <a href="/lets-talk/" class="text-xs font-semibold uppercase tracking-wider text-odyssey-accent hover:text-odyssey-accent-deep">Get info →</a>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile cards -->
+          <div class="md:hidden divide-y divide-odyssey-stone/10">
+            {specs.map(spec => {
+              const plan = planBySlug.get(spec.planSlug);
+              const planLive = plan?.status === 'live';
+              return (
+                <div class={`p-5 ${spec.status === 'sold' ? 'opacity-60' : ''}`}>
+                  <p class="font-semibold text-odyssey-charcoal text-lg">{spec.address}</p>
+                  <p class="text-sm text-odyssey-stone-dark">{spec.lotNumber}</p>
+                  <div class="mt-3 text-sm text-odyssey-stone-dark">
+                    {planLive ? (
+                      <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
+                    ) : (
+                      <span class="font-semibold">{plan?.name || spec.planSlug}</span>
+                    )}
+                    <span class="text-odyssey-stone"> · Completes {spec.tentativeCompletion}</span>
+                  </div>
+                  {spec.status === 'available' && (
+                    <a href="/lets-talk/" class="mt-3 inline-block text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Get info →</a>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Raw lots in this community -->
+  {lots.length > 0 && (
+    <section class="bg-odyssey-bone">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Build From Scratch</p>
+        <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">
+          {lots.filter(l => l.status === 'available').length} available lots
+        </h2>
+        <p class="mt-4 text-odyssey-stone-dark max-w-2xl leading-relaxed">
+          Pick a lot, pick a floor plan, and Odyssey builds your custom home from the ground up. Lot prices below are for the land only — your home build is quoted on top.
+        </p>
+
+        <div class="mt-10 bg-white rounded-lg shadow-sm overflow-hidden">
+          <!-- Desktop table -->
+          <div class="hidden md:block">
+            <table class="w-full text-sm">
+              <thead class="bg-odyssey-charcoal text-odyssey-cream">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Lot</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Address</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Size</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Lot Price</th>
+                  <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Status</th>
+                  <th class="px-4 py-3 text-right font-semibold uppercase tracking-wider text-xs"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {lots.map((lot, idx) => {
+                  const dim = lot.status === 'sold';
+                  const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-odyssey-bone';
+                  return (
+                    <tr class={`${rowBg} ${dim ? 'opacity-60' : ''} border-t border-odyssey-stone/10`}>
+                      <td class="px-4 py-3 font-semibold text-odyssey-charcoal whitespace-nowrap">{lot.lotNumber}</td>
+                      <td class="px-4 py-3 text-odyssey-stone-dark">{lot.address || '—'}</td>
+                      <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{fmtSize(lot)}</td>
+                      <td class="px-4 py-3 text-odyssey-charcoal font-semibold whitespace-nowrap">{fmtPrice(lot.price)}</td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class={
+                          lot.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
+                          lot.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
+                          lot.status === 'spec-in-progress' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-yellow-200 text-yellow-900' :
+                          lot.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
+                          'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
+                        }>{lotStatusLabels[lot.status]}</span>
+                      </td>
+                      <td class="px-4 py-3 text-right whitespace-nowrap">
+                        {lot.status === 'available' && (
+                          <a href="/lets-talk/" class="text-xs font-semibold uppercase tracking-wider text-odyssey-accent hover:text-odyssey-accent-deep">Get info →</a>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile cards -->
+          <div class="md:hidden divide-y divide-odyssey-stone/10">
+            {lots.map(lot => (
+              <div class={`p-5 ${lot.status === 'sold' ? 'opacity-60' : ''}`}>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-odyssey-charcoal text-lg">{lot.lotNumber}</p>
+                    {lot.address && <p class="text-sm text-odyssey-stone-dark">{lot.address}</p>}
+                  </div>
+                  <span class={
+                    lot.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
+                    lot.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
+                    lot.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
+                    'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
+                  }>{lotStatusLabels[lot.status]}</span>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-odyssey-stone">Size</p>
+                    <p class="text-odyssey-stone-dark">{fmtSize(lot)}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-odyssey-stone">Lot Price</p>
+                    <p class="font-semibold text-odyssey-charcoal">{fmtPrice(lot.price)}</p>
+                  </div>
+                </div>
+                {lot.status === 'available' && (
+                  <a href="/lets-talk/" class="mt-3 inline-block text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Get info →</a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p class="mt-6 text-xs text-odyssey-stone italic">
+          Lot prices and availability are subject to change. Your Realtor will confirm current status before any offer.
+        </p>
+      </div>
+    </section>
+  )}
+
+  <!-- Closing CTA -->
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-16 lg:py-20 text-center">
+      <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight text-white">Interested in {community.name}?</h2>
+      <p class="mt-4 text-odyssey-cream/85 leading-relaxed">
+        Inventory changes weekly. Tell us what you're looking for — plan, lot preference, timeline — and we'll let you know what fits.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/lets-talk/" class="inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+          Tell us what you're looking for
+        </a>
+        <a href={site.phoneHref} class="inline-block bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-7 rounded border border-white/20 transition-colors">
+          Call {site.phone}
+        </a>
+      </div>
+      <p class="mt-8 text-sm text-odyssey-cream/60">
+        ← <a href="/available-lots/" class="hover:text-odyssey-accent-light transition-colors">Back to all communities</a>
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

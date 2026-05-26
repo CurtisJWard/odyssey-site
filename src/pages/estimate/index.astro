@@ -1,0 +1,477 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { site } from '../../data/site';
+
+// Sales Agent Login points at the Apps Script web app for the Upgrades & Options tool.
+// Reps and managers use this link; clients use the magic link their agent or Realtor texts them.
+const SALES_AGENT_LOGIN_URL = 'https://script.google.com/macros/s/AKfycbwBvVqPNsbBx23CNytvk2L8Ld_yAD120qsmZhWOtyBZ/exec';
+
+// Embedded walkthrough video. Replace with YouTube embed URL once Curtis records it.
+const videoEmbedUrl: string | null = null;
+---
+
+<Layout
+  title="Build Your Estimate — Odyssey Homes Eastern Idaho Calculator"
+  description="Use the Odyssey Homes interactive estimator: browse 12 base plans, pick your exterior style, customize upgrades, see itemized cost. New construction homes in Idaho Falls, Ammon, Rigby, Rexburg, Shelley, Blackfoot."
+>
+  {/* Per-page JSON-LD schema — WebApplication for the estimator tool.
+      Helps Google understand this is an interactive calculator + qualify
+      the page for "home cost estimator" and related searches. */}
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Odyssey Homes Estimator",
+      "description": "Interactive estimator for semi-custom homes in Idaho Falls, Ammon, Rigby, Rexburg, Shelley, and Blackfoot. Browse 12 base plans across three exterior styles, customize finishes and upgrades, and see an itemized cost summary in real time.",
+      "url": "https://buildodyssey.com/estimate/",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Home Building Estimator",
+      "operatingSystem": "Web Browser",
+      "browserRequirements": "Modern browser (Chrome, Safari, Firefox, Edge)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "Odyssey Homes",
+        "url": "https://buildodyssey.com"
+      },
+      "featureList": [
+        "Browse 12 base floor plans",
+        "Three exterior styles per plan (Farmhouse, Modern, Traditional)",
+        "Customize upgrades and finishes",
+        "Itemized cost summary",
+        "Direct contact or realtor-assisted setup"
+      ]
+    })}></script>
+  </Fragment>
+  <Header />
+
+  <!-- Hero -->
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">For Odyssey Homes Clients</p>
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Build Your Estimate</h1>
+      <p class="mt-6 text-lg lg:text-xl text-odyssey-cream/85 max-w-3xl leading-relaxed">
+        Build a custom Odyssey estimate at your own pace. Your Realtor can get you set up — or if you don't have one yet, our team will. The tool sits behind a login so our pricing stays between our team and our clients, not on a competitor's screen.
+      </p>
+    </div>
+  </section>
+
+  <!-- Returning-client fast path: takes anyone with an existing password
+       straight to the estimator login. Above the realtor branching so
+       returning users don't have to scan past the new-user flow. -->
+  <section class="bg-odyssey-accent text-white">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <p class="text-sm sm:text-base font-semibold">
+        Already have a password?
+      </p>
+      <a
+        href={SALES_AGENT_LOGIN_URL}
+        class="inline-flex items-center gap-2 bg-white text-odyssey-accent hover:bg-odyssey-bone font-semibold py-2 px-5 rounded text-sm uppercase tracking-wider transition-colors"
+        rel="noopener"
+      >
+        Sign in to the estimator →
+      </a>
+    </div>
+  </section>
+
+  <!-- Realtor-first branching: the most important section on the page -->
+  <section class="bg-white">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24">
+      <div class="text-center mb-10">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Let's start here</p>
+        <h2 class="mt-3 text-3xl lg:text-5xl font-semibold tracking-tight text-odyssey-charcoal">
+          Already working with a Realtor?
+        </h2>
+        <p class="mt-6 text-sm text-odyssey-stone-dark italic max-w-2xl mx-auto">
+          Note: Odyssey builds new homes only. The estimator covers new construction — we don't do remodels or additions.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 lg:gap-10">
+        <!-- YES branch -->
+        <div class="bg-odyssey-bone rounded-lg p-8 lg:p-10 border border-odyssey-stone/20 flex flex-col">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-odyssey-accent text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <h3 class="text-2xl lg:text-3xl font-semibold text-odyssey-charcoal">Yes, I have a Realtor</h3>
+          </div>
+          <p class="mt-5 text-odyssey-stone-dark leading-relaxed">
+            Share your Realtor's info below and we'll reach out to them directly to get them set up with estimator access — no two-step shuffle. <strong>You keep your Realtor through closing at no extra cost to you</strong> — same as any standard new-construction purchase.
+          </p>
+
+          <form id="realtor-intro-form" class="mt-6 grid sm:grid-cols-2 gap-3">
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your name *</span>
+              <input type="text" name="buyer-name" required autocomplete="name"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your email *</span>
+              <input type="email" name="buyer-email" required autocomplete="email"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your phone</span>
+              <input type="tel" name="buyer-phone" autocomplete="tel"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your Realtor's name *</span>
+              <input type="text" name="realtor-name" required
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your Realtor's email or phone *</span>
+              <input type="text" name="realtor-contact" required placeholder="email@example.com or (208) 555-1234"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm placeholder-odyssey-stone/50 focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Where do you want to build? *</span>
+              <select name="build-location" required
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none">
+                <option value="">Select a location</option>
+                <option value="idaho-falls">Idaho Falls</option>
+                <option value="ammon">Ammon</option>
+                <option value="rigby">Rigby</option>
+                <option value="rexburg">Rexburg</option>
+                <option value="shelley">Shelley</option>
+                <option value="blackfoot">Blackfoot</option>
+                <option value="pocatello">Pocatello</option>
+                <option value="other-eastern-idaho">Other Eastern Idaho area</option>
+                <option value="moving-from-out-of-state">Moving here from out of state</option>
+                <option value="not-sure-yet">Not sure yet</option>
+              </select>
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">What type of project? *</span>
+              <select name="project-type" required
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none">
+                <option value="">Select a project type</option>
+                <option value="new-construction-our-lot">New construction on an Odyssey lot</option>
+                <option value="new-construction-my-lot">New construction on my own lot</option>
+                <option value="quick-move-in">Quick move-in / spec home</option>
+                <option value="just-exploring">Just exploring options</option>
+              </select>
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Anything else we should know</span>
+              <textarea name="notes" rows="2"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none"></textarea>
+            </label>
+            <div class="sm:col-span-2 flex items-center gap-3 mt-2">
+              <button type="submit" class="bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold px-5 py-2.5 rounded text-sm uppercase tracking-wider transition-colors">
+                Send to Odyssey
+              </button>
+              <p id="realtor-form-status" class="text-xs text-odyssey-stone-dark/80"></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- NO branch -->
+        <div class="bg-odyssey-bone rounded-lg p-8 lg:p-10 border border-odyssey-stone/20 flex flex-col">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-odyssey-stone text-white font-bold text-lg">→</span>
+            <h3 class="text-2xl lg:text-3xl font-semibold text-odyssey-charcoal">Not yet</h3>
+          </div>
+          <p class="mt-5 text-odyssey-stone-dark leading-relaxed">
+            Drop your info below and your Project Consultant will give you a quick call — usually within the hour during business hours. We like to get acquainted, hear what you're looking for, and set up your estimator access the old-fashioned way: a real person on the phone, then your login.
+          </p>
+
+          <form id="client-signup-form" class="mt-6 grid sm:grid-cols-2 gap-3">
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your name *</span>
+              <input type="text" name="name" required autocomplete="name"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your phone *</span>
+              <input type="tel" name="phone" required autocomplete="tel"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Your email * <span class="font-normal normal-case tracking-normal text-odyssey-stone/70">(this becomes your login once we set it up)</span></span>
+              <input type="email" name="email" required autocomplete="email"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Where do you want to build? *</span>
+              <select name="build-location" required
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none">
+                <option value="">Select a location</option>
+                <option value="idaho-falls">Idaho Falls</option>
+                <option value="ammon">Ammon</option>
+                <option value="rigby">Rigby</option>
+                <option value="rexburg">Rexburg</option>
+                <option value="shelley">Shelley</option>
+                <option value="blackfoot">Blackfoot</option>
+                <option value="pocatello">Pocatello</option>
+                <option value="other-eastern-idaho">Other Eastern Idaho area</option>
+                <option value="moving-from-out-of-state">Moving here from out of state</option>
+                <option value="not-sure-yet">Not sure yet</option>
+              </select>
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">What type of project? *</span>
+              <select name="project-type" required
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm focus:border-odyssey-accent focus:outline-none">
+                <option value="">Select a project type</option>
+                <option value="new-construction-our-lot">New construction on an Odyssey lot</option>
+                <option value="new-construction-my-lot">New construction on my own lot</option>
+                <option value="quick-move-in">Quick move-in / spec home</option>
+                <option value="just-exploring">Just exploring options</option>
+              </select>
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Best time to reach you</span>
+              <input type="text" name="best-time" placeholder="e.g., evenings after 6pm, mornings before work"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm placeholder-odyssey-stone/50 focus:border-odyssey-accent focus:outline-none" />
+            </label>
+            <label class="block sm:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">What are you looking to build? <span class="font-normal normal-case tracking-normal text-odyssey-stone/70">(any detail helps us prep)</span></span>
+              <textarea name="notes" rows="3" placeholder="e.g., 3-bed rambler in Ammon, looking to break ground next spring"
+                class="mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 text-sm placeholder-odyssey-stone/50 focus:border-odyssey-accent focus:outline-none"></textarea>
+            </label>
+            <div class="sm:col-span-2 flex items-center gap-3 mt-2">
+              <button type="submit" class="bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold px-5 py-2.5 rounded text-sm uppercase tracking-wider transition-colors">
+                Have Odyssey call me
+              </button>
+              <p id="client-signup-status" class="text-xs text-odyssey-stone-dark/80"></p>
+            </div>
+          </form>
+
+          <!-- Today's Project Consultant footer — small, supportive role -->
+          <div class="mt-8 pt-6 border-t border-odyssey-stone/15" data-todays-agent>
+            <p class="text-xs text-odyssey-stone">
+              Today's Project Consultant on call:
+              <span class="font-semibold text-odyssey-charcoal" data-agent-name>Our Project Consultant Team</span>
+              <span class="block sm:inline sm:ml-2">
+                <a href={site.phoneHref} class="text-odyssey-accent hover:underline font-semibold" data-agent-phone-link>{site.phone}</a>
+              </span>
+            </p>
+          </div>
+
+          <a href="/meet-the-team/" class="mt-3 inline-block text-sm font-semibold text-odyssey-stone hover:text-odyssey-accent uppercase tracking-wider transition-colors">
+            Meet all our Project Consultants →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Walkthrough Video -->
+  <section class="bg-odyssey-bone">
+    <div class="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">A Quick Walkthrough</p>
+      <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">
+        See how the estimator works in under 3 minutes
+      </h2>
+      <div class="mt-8 aspect-video w-full bg-odyssey-sand rounded overflow-hidden shadow-sm">
+        {videoEmbedUrl ? (
+          <iframe
+            src={videoEmbedUrl}
+            title="Build Your Estimate — walkthrough"
+            class="w-full h-full"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          />
+        ) : (
+          <div class="w-full h-full flex flex-col items-center justify-center text-center px-8">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-odyssey-accent">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <p class="mt-4 text-odyssey-stone font-semibold">Walkthrough video coming soon</p>
+            <p class="mt-2 text-sm text-odyssey-stone/80 max-w-md">
+              In the meantime, your Realtor will walk you through everything in your first session.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- What the estimator actually does — experience-driven, not procedural -->
+  <section class="bg-white">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8 py-20 lg:py-24">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Inside the Estimator</p>
+      <h2 class="mt-3 text-3xl lg:text-5xl font-semibold tracking-tight text-odyssey-charcoal max-w-3xl">
+        Your home. Your pace. Your budget.
+      </h2>
+
+      <p class="mt-8 text-lg lg:text-xl text-odyssey-stone-dark leading-relaxed max-w-3xl">
+        Saturday morning, coffee in hand. You're scrolling floor plans from the couch — square footage and pricing update with every click. Your partner spots one they love. You start picking through options together — custom fireplace? <span class="font-semibold text-odyssey-charcoal">In.</span> Bigger garage? <span class="font-semibold text-odyssey-charcoal">Absolutely.</span> That over-the-top kitchen tier… <span class="font-semibold text-odyssey-charcoal">maybe next year.</span> Every choice updates your total in real time.
+      </p>
+
+      <div class="mt-14 grid md:grid-cols-3 gap-8">
+        <!-- Capability 1: Browse + compare -->
+        <div class="bg-odyssey-bone rounded p-7 flex flex-col">
+          <div class="w-12 h-12 rounded bg-odyssey-accent text-white flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3 class="mt-5 text-xl font-semibold text-odyssey-charcoal">Browse every plan, see every cost</h3>
+          <p class="mt-3 text-odyssey-stone-dark leading-relaxed flex-grow">
+            Twelve base plans, three exterior styles each. Click any plan to see the square footage breakdown and starting price. Compare side by side, on your couch — no calling around to chase price sheets.
+          </p>
+        </div>
+
+        <!-- Capability 2: Customize up + trim down -->
+        <div class="bg-odyssey-bone rounded p-7 flex flex-col">
+          <div class="w-12 h-12 rounded bg-odyssey-accent text-white flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <h3 class="mt-5 text-xl font-semibold text-odyssey-charcoal">Customize up. Trim down.</h3>
+          <p class="mt-3 text-odyssey-stone-dark leading-relaxed flex-grow">
+            Every upgrade, every finish, every add-on is in the system with its own line-item price. Add a covered patio. Bump the cabinet tier up. Drop a feature that isn't for you. Your total moves in real time as you decide — argue about the fireplace, trim where you need to.
+          </p>
+        </div>
+
+        <!-- Capability 3: Itemized cost summary -->
+        <div class="bg-odyssey-bone rounded p-7 flex flex-col">
+          <div class="w-12 h-12 rounded bg-odyssey-accent text-white flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          </div>
+          <h3 class="mt-5 text-xl font-semibold text-odyssey-charcoal">Your itemized Cost Summary</h3>
+          <p class="mt-3 text-odyssey-stone-dark leading-relaxed flex-grow">
+            When you're ready, the estimator generates a clean, line-by-line Cost Summary of your exact home — every selection, every dollar, full transparency. Save your progress, walk away, pick it up tomorrow. Your home builds with you on your time.
+          </p>
+        </div>
+      </div>
+
+      <p class="mt-14 text-lg text-odyssey-stone-dark italic max-w-3xl">
+        Build it together. Find your number. Then sign when it's right.
+      </p>
+    </div>
+  </section>
+
+  <!-- Realtor B2B nudge -->
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-4xl mx-auto px-6 lg:px-8 py-16 lg:py-20 text-center">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">For Realtors</p>
+      <h2 class="mt-3 text-3xl lg:text-4xl font-semibold tracking-tight text-white">
+        Bringing a buyer to Odyssey?
+      </h2>
+      <p class="mt-5 text-lg text-odyssey-cream/85 leading-relaxed max-w-2xl mx-auto">
+        We work with Realtors across Eastern Idaho. Reach out and we'll get you set up to walk your clients through our estimator — you stay the relationship owner, full sale credit, full commission.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/lets-talk/" class="inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+          Get in touch
+        </a>
+        <a href={site.phoneHref} class="inline-block bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-7 rounded border border-white/20 transition-colors">
+          Call {site.phone}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Discrete Sales Agent Login -->
+  <section class="bg-odyssey-bone">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-10 text-center border-t border-odyssey-stone/15">
+      <a
+        href={SALES_AGENT_LOGIN_URL}
+        class="text-sm font-semibold text-odyssey-stone hover:text-odyssey-accent uppercase tracking-wider transition-colors"
+        rel="noopener"
+      >
+        Sales Agent Login →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Fetch today's on-call Project Consultant from our Apps Script-backed endpoint and
+  // swap the placeholder in the "Not yet" branch. Endpoint may not exist yet
+  // (404 → keep fallback). Cached server-side for 1 hour to keep Apps Script
+  // quota usage low.
+  (async () => {
+    const wrapper = document.querySelector('[data-todays-agent]');
+    if (!wrapper) return;
+    try {
+      const res = await fetch('/api/todays-agent', { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) return;
+      const data = await res.json() as {
+        available?: boolean;
+        name?: string;
+        firstName?: string;
+        phone?: string;
+        phoneHref?: string;
+      };
+      if (!data.available || !data.name) return;
+      const nameEl = wrapper.querySelector('[data-agent-name]');
+      const phoneLinkEl = wrapper.querySelector('[data-agent-phone-link]') as HTMLAnchorElement | null;
+      if (nameEl) nameEl.textContent = data.name;
+      if (phoneLinkEl && data.phone) {
+        phoneLinkEl.textContent = data.phone;
+        if (data.phoneHref) phoneLinkEl.href = data.phoneHref;
+      }
+    } catch {
+      // Silently keep the fallback "Our Project Consultant Team" copy.
+    }
+  })();
+
+  // Realtor intro form submission → /api/realtor-intro → Resend → office@buildodyssey.com.
+  const realtorForm = document.getElementById('realtor-intro-form') as HTMLFormElement | null;
+  const realtorStatus = document.getElementById('realtor-form-status');
+  if (realtorForm && realtorStatus) {
+    realtorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      realtorStatus.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/realtor-intro', {
+          method: 'POST',
+          body: new FormData(realtorForm),
+        });
+        const data = await res.json() as { ok: boolean; error?: string };
+        if (data.ok) {
+          realtorForm.reset();
+          realtorStatus.textContent = "Thanks — we'll reach out to your Realtor and get them set up.";
+        } else {
+          realtorStatus.textContent = data.error || 'Something went wrong. Please call (208) 450-5500.';
+        }
+      } catch {
+        realtorStatus.textContent = 'Something went wrong. Please call (208) 450-5500.';
+      }
+    });
+  }
+
+  // Client signup form (NO-Realtor branch) → /api/client-signup → Resend → today's on-call consultant.
+  // Submitted leads trigger a phone call from the on-duty consultant, not an automated
+  // password — the human-touch step doubles as a competitor filter.
+  const clientForm = document.getElementById('client-signup-form') as HTMLFormElement | null;
+  const clientStatus = document.getElementById('client-signup-status');
+  if (clientForm && clientStatus) {
+    clientForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clientStatus.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/client-signup', {
+          method: 'POST',
+          body: new FormData(clientForm),
+        });
+        const data = await res.json() as { ok: boolean; error?: string; agentName?: string };
+        if (data.ok) {
+          clientForm.reset();
+          const who = data.agentName ? data.agentName : 'Your Project Consultant';
+          clientStatus.textContent = `Got it — ${who} will give you a call to get acquainted and set up your access. Usually within the hour during business hours.`;
+        } else {
+          clientStatus.textContent = data.error || 'Something went wrong. Please call (208) 450-5500.';
+        }
+      } catch {
+        clientStatus.textContent = 'Something went wrong. Please call (208) 450-5500.';
+      }
+    });
+  }
+</script>

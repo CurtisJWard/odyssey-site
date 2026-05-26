@@ -1,0 +1,135 @@
+---
+// Sitewide "Visit Our Showroom" block. Renders with a static fallback at build
+// time; a small inline script hydrates today's hours + on-call rep from
+// /api/todays-agent on page load.
+//
+// Variants:
+//   'section'  — big homepage section (default)
+//   'footer'   — compact 1-column for embedding in Footer
+import { site } from '../data/site';
+
+interface Props {
+  variant?: 'section' | 'footer';
+}
+const { variant = 'section' } = Astro.props;
+---
+
+{variant === 'section' ? (
+  <section class="bg-odyssey-bone">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Visit Us</p>
+        <h2 class="mt-3 text-3xl lg:text-5xl font-semibold tracking-tight text-odyssey-charcoal">Our Showroom</h2>
+        <p class="mt-5 text-odyssey-stone-dark leading-relaxed">
+          Walk through finishes, see plan models, and meet your Project Consultant face to face. Or call us anytime — our team is reachable 24/7.
+        </p>
+
+        <div class="mt-8 bg-white rounded p-6 shadow-sm" data-visit-us-card>
+          <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Address</p>
+          <p class="mt-2 text-xl font-semibold text-odyssey-charcoal">{site.showroom.line1}</p>
+          <p class="text-xl font-semibold text-odyssey-charcoal">{site.showroom.line2}</p>
+
+          <div class="mt-5 pt-5 border-t border-odyssey-stone/15">
+            <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone" data-status-label>Today</p>
+            <p class="mt-1 text-lg font-semibold text-odyssey-charcoal" data-status-text>Call to confirm today's hours</p>
+            <p class="mt-1 text-sm text-odyssey-stone-dark" data-agent-line>Our team is reachable 24/7 at {site.phone}.</p>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href={site.phoneHref} class="inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-2.5 px-5 rounded text-sm transition-colors">
+              Call {site.phone}
+            </a>
+            <a href={site.showroom.googleMapsUrl} target="_blank" rel="noopener" class="inline-block bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-2.5 px-5 rounded text-sm border border-odyssey-stone/30 transition-colors">
+              Get directions →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-[4/3] rounded overflow-hidden shadow-md">
+        <iframe
+          src={`https://www.google.com/maps?q=${encodeURIComponent(site.showroom.line1 + ', ' + site.showroom.line2)}&output=embed`}
+          class="w-full h-full"
+          style="border:0"
+          loading="lazy"
+          title="Odyssey Homes Showroom location"
+          referrerpolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </div>
+  </section>
+) : (
+  <div data-visit-us-card>
+    <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent-light">Showroom</p>
+    <p class="mt-3 leading-relaxed text-odyssey-cream/85 text-sm">
+      {site.showroom.line1}<br />
+      {site.showroom.line2}
+    </p>
+    <p class="mt-3 text-sm text-odyssey-cream/85" data-status-text>Call to confirm today's hours</p>
+    <p class="text-xs text-odyssey-cream/60" data-agent-line>Reachable 24/7 at {site.phone}</p>
+    <a href={site.showroom.googleMapsUrl} target="_blank" rel="noopener" class="mt-3 inline-block text-xs font-semibold uppercase tracking-widest text-odyssey-accent-light hover:text-white transition-colors">
+      Get directions →
+    </a>
+  </div>
+)}
+
+<script>
+  // Populate showroom status from /api/todays-agent on every page that has a VisitUs block.
+  (async () => {
+    const cards = document.querySelectorAll('[data-visit-us-card]');
+    if (cards.length === 0) return;
+    try {
+      const res = await fetch('/api/todays-agent', { headers: { Accept: 'application/json' } });
+      if (!res.ok) return;
+      const data = await res.json() as {
+        available?: boolean;
+        showroomStatus?: 'open' | 'closed';
+        firstName?: string;
+        name?: string;
+        hours?: {
+          isAllDay?: boolean;
+          startLabel?: string;
+          endLabel?: string;
+        };
+      };
+
+      cards.forEach(card => {
+        const statusLabel = card.querySelector('[data-status-label]');
+        const statusText = card.querySelector('[data-status-text]');
+        const agentLine = card.querySelector('[data-agent-line]');
+
+        if (!data.available) {
+          // No matching rotation event today at all — full fallback copy.
+          if (statusLabel) statusLabel.textContent = 'Today';
+          if (statusText) statusText.textContent = 'Closed today';
+          if (agentLine) agentLine.textContent = "Leave us a message — we'll be back in touch soon.";
+          return;
+        }
+
+        const repFirst = data.firstName || 'one of our Project Consultants';
+
+        if (data.showroomStatus === 'closed') {
+          // Showroom closed today but the rep is still on call.
+          if (statusLabel) statusLabel.textContent = 'Showroom closed today';
+          if (statusText) statusText.textContent = `${repFirst} is on call`;
+          if (agentLine) agentLine.textContent = "Give a call or send a message — we'll be in touch.";
+          return;
+        }
+
+        // Showroom open today (default when status === 'open').
+        const hours = data.hours;
+        if (statusLabel) statusLabel.textContent = 'Open today';
+        if (statusText) {
+          if (hours && !hours.isAllDay && hours.startLabel && hours.endLabel) {
+            statusText.textContent = `${hours.startLabel} – ${hours.endLabel}`;
+          } else {
+            statusText.textContent = 'Open today — call to confirm hours';
+          }
+        }
+        if (agentLine) agentLine.textContent = `${repFirst} is in the showroom today.`;
+      });
+    } catch {
+      // Keep static fallback.
+    }
+  })();
+</script>

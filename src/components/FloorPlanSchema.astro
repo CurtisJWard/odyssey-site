@@ -1,0 +1,61 @@
+---
+/**
+ * Per-plan Product/Residence JSON-LD schema.
+ *
+ * Usage in per-plan pages ([slug].astro):
+ *   <Fragment slot="head">
+ *     <FloorPlanSchema plan={plan} />
+ *   </Fragment>
+ *
+ * Pulls all data from the Plan object — keep plans.ts as source of truth.
+ */
+
+import type { Plan } from '../data/plans';
+
+interface Props { plan: Plan }
+const { plan } = Astro.props;
+
+const BASE_URL = 'https://buildodyssey.com';
+const planUrl = `${BASE_URL}/semi-custom-home-floor-plans/${plan.slug}/`;
+const imageUrl = plan.exteriorImage
+  ? `${BASE_URL}${plan.exteriorImage}`
+  : `${BASE_URL}/images/odyssey-logo-rgb.png`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  '@id': planUrl,
+  name: `${plan.name} — Semi-Custom Floor Plan`,
+  description: plan.shortDescription || plan.longDescription || `${plan.name}: ${plan.totalSqFt?.toLocaleString()} sq ft semi-custom home plan by Odyssey Homes. ${plan.beds} bed, ${plan.baths} bath. Available in ${plan.styles.join(', ')} exterior styles.`,
+  url: planUrl,
+  image: imageUrl,
+  brand: {
+    '@type': 'Brand',
+    name: 'Odyssey Homes',
+  },
+  category: 'Semi-Custom Home Plan',
+  // Surface key home stats as additional properties
+  additionalProperty: [
+    { '@type': 'PropertyValue', name: 'Total Square Feet', value: plan.totalSqFt },
+    { '@type': 'PropertyValue', name: 'Bedrooms', value: plan.beds },
+    { '@type': 'PropertyValue', name: 'Bathrooms', value: plan.baths },
+    { '@type': 'PropertyValue', name: 'Exterior Styles', value: plan.styles.join(', ') },
+    { '@type': 'PropertyValue', name: 'Garage', value: '3-car standard (2-car available)' },
+  ].filter(p => p.value !== undefined && p.value !== null),
+  offers: plan.startingPrice
+    ? {
+        '@type': 'Offer',
+        price: plan.startingPrice,
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+        seller: {
+          '@type': 'Organization',
+          name: 'Odyssey Homes',
+          url: BASE_URL,
+        },
+      }
+    : undefined,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

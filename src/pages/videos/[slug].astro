@@ -1,0 +1,166 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { videos, videoThumbnail, CATEGORY_LABELS, type Video } from '../../data/videos';
+import { seriesBySlug, videosInSeries } from '../../data/series';
+
+export function getStaticPaths() {
+  return videos.map(v => ({
+    params: { slug: v.slug },
+    props: { video: v },
+  }));
+}
+
+interface Props { video: Video }
+const { video } = Astro.props;
+
+// VideoObject schema for SEO (eligible for Google video-rich-snippets)
+const BASE_URL = 'https://buildodyssey.com';
+const videoUrl = `${BASE_URL}/videos/${video.slug}/`;
+const youtubeEmbedUrl = `https://www.youtube.com/embed/${video.youtubeId}`;
+const youtubeWatchUrl = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+
+function isoDuration(seconds?: number): string | undefined {
+  if (!seconds) return undefined;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `PT${m > 0 ? m + 'M' : ''}${s > 0 ? s + 'S' : ''}`;
+}
+
+const videoSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: video.title,
+  description: video.longDescription || video.description,
+  thumbnailUrl: videoThumbnail(video),
+  uploadDate: video.publishedDate,
+  contentUrl: youtubeWatchUrl,
+  embedUrl: youtubeEmbedUrl,
+  ...(isoDuration(video.durationSeconds) ? { duration: isoDuration(video.durationSeconds) } : {}),
+  publisher: {
+    '@type': 'Organization',
+    name: 'Odyssey Homes',
+    url: BASE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${BASE_URL}/images/odyssey-logo-rgb.png`,
+    },
+  },
+};
+
+// Series context — if this video belongs to a series, surface prev/next episodes
+const parentSeries = video.series ? seriesBySlug(video.series.slug) : undefined;
+const seriesEpisodes = parentSeries ? videosInSeries(parentSeries.slug) : [];
+const currentIndex = parentSeries ? seriesEpisodes.findIndex(v => v.slug === video.slug) : -1;
+const prevEpisode = currentIndex > 0 ? seriesEpisodes[currentIndex - 1] : undefined;
+const nextEpisode = currentIndex >= 0 && currentIndex < seriesEpisodes.length - 1 ? seriesEpisodes[currentIndex + 1] : undefined;
+
+// Related videos: same category, excluding this one + any other episodes in the same series (those are shown separately)
+const relatedExclusions = new Set([video.slug, ...seriesEpisodes.map(e => e.slug)]);
+const related = videos.filter(v => v.category === video.category && !relatedExclusions.has(v.slug)).slice(0, 3);
+---
+
+<Layout
+  title={`${video.title} — Odyssey Homes Videos`}
+  description={video.description}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(videoSchema)}></script>
+    <Breadcrumbs />
+  </Fragment>
+  <Header />
+
+  <section class="bg-odyssey-charcoal text-odyssey-cream">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+      {parentSeries ? (
+        <a href={`/videos/series/${parentSeries.slug}/`} class="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          {parentSeries.name} · Episode {video.series?.episode}
+        </a>
+      ) : (
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">{CATEGORY_LABELS[video.category]}</p>
+      )}
+      <h1 class="mt-4 text-3xl lg:text-5xl font-bold tracking-tight text-white">{video.title}</h1>
+
+      <!-- Embedded video -->
+      <div class="mt-10 aspect-video w-full bg-black rounded overflow-hidden shadow-xl">
+        <iframe
+          src={youtubeEmbedUrl}
+          title={video.title}
+          class="w-full h-full"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <p class="mt-8 text-lg text-odyssey-cream/85 leading-relaxed max-w-3xl">
+        {video.longDescription || video.description}
+      </p>
+
+      <p class="mt-6 text-sm text-odyssey-cream/60">
+        Published {new Date(video.publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </div>
+  </section>
+
+  {parentSeries && (prevEpisode || nextEpisode) && (
+    <section class="bg-odyssey-bone border-b border-odyssey-stone/15">
+      <div class="max-w-5xl mx-auto px-6 lg:px-8 py-10 grid sm:grid-cols-2 gap-6">
+        {prevEpisode ? (
+          <a href={`/videos/${prevEpisode.slug}/`} class="group block bg-white rounded-lg p-5 hover:shadow-md transition-shadow">
+            <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">← Previous Episode</p>
+            <p class="mt-2 text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Episode {prevEpisode.series?.episode}</p>
+            <h3 class="mt-1 text-lg font-semibold text-odyssey-charcoal group-hover:text-odyssey-accent transition-colors">{prevEpisode.title}</h3>
+          </a>
+        ) : <div></div>}
+        {nextEpisode ? (
+          <a href={`/videos/${nextEpisode.slug}/`} class="group block bg-white rounded-lg p-5 hover:shadow-md transition-shadow sm:text-right">
+            <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-stone">Next Episode →</p>
+            <p class="mt-2 text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Episode {nextEpisode.series?.episode}</p>
+            <h3 class="mt-1 text-lg font-semibold text-odyssey-charcoal group-hover:text-odyssey-accent transition-colors">{nextEpisode.title}</h3>
+          </a>
+        ) : <div></div>}
+      </div>
+    </section>
+  )}
+
+  {related.length > 0 && (
+    <section class="bg-odyssey-bone">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">More like this</p>
+        <h2 class="mt-3 text-3xl font-semibold text-odyssey-charcoal">Other {CATEGORY_LABELS[video.category].toLowerCase()} videos</h2>
+        <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {related.map(v => (
+            <a href={`/videos/${v.slug}/`} class="group block bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div class="aspect-video bg-odyssey-charcoal relative overflow-hidden">
+                <img src={videoThumbnail(v)} alt={v.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-14 h-14 bg-odyssey-accent rounded-full flex items-center justify-center opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </div>
+                </div>
+              </div>
+              <div class="p-5">
+                <h3 class="text-base font-semibold text-odyssey-charcoal leading-tight">{v.title}</h3>
+                <p class="mt-2 text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Watch →</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="bg-white">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-16 text-center">
+      <a href="/videos/" class="text-sm font-semibold uppercase tracking-wider text-odyssey-accent hover:text-odyssey-accent-deep">
+        ← Browse all videos
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

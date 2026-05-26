@@ -3,38 +3,199 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { communities } from '../../data/communities';
+import { specHomesByCommunity, totalAvailableSpecs, type SpecHomeStatus } from '../../data/specHomes';
+import { plans } from '../../data/plans';
+
+const statusLabels: Record<SpecHomeStatus, string> = {
+  'available': 'Available',
+  'reserved': 'Reserved',
+  'under-contract': 'Under Contract',
+  'sold': 'Sold',
+};
+
+const planBySlug = new Map(plans.map(p => [p.slug, p]));
+
+function formatPrice(price?: number): string {
+  if (price === undefined) return 'Coming Soon';
+  return '$' + price.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+const totalAvailable = totalAvailableSpecs();
 ---
 
-<Layout title="Quick Move-Ins — Odyssey Homes" description="From fully completed homes to those still in progress, our quick move-in selection is designed to meet your needs.">
+<Layout
+  title="Quick Move-Ins — Odyssey Homes"
+  description="Move into a new Odyssey home sooner. Browse spec homes in progress across Eastern Idaho — Idaho Falls, Ammon, Rigby, Rexburg, Shelley, and Blackfoot. Claim one at any stage and customize what you can."
+>
+  <Fragment slot="head">
+    <Breadcrumbs />
+  </Fragment>
   <Header />
 
+  <!-- Hero -->
   <section class="bg-odyssey-charcoal text-odyssey-cream">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
       <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Quick Move-Ins</p>
-      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Move In Sooner</h1>
-      <p class="mt-6 text-lg text-odyssey-cream/85 max-w-2xl leading-relaxed">
-        From fully completed homes to those still in progress, our selection is designed to meet your needs.
+      <h1 class="mt-4 text-4xl lg:text-6xl font-bold tracking-tight text-white">Move in sooner.</h1>
+      <p class="mt-6 text-lg lg:text-xl text-odyssey-cream/85 max-w-3xl leading-relaxed">
+        Homes we're already building across Eastern Idaho. Claim one at any stage — earlier = more finish customization, later = move in sooner. {totalAvailable > 0 && (
+          <span class="font-semibold text-white">{totalAvailable} available right now.</span>
+        )}
       </p>
     </div>
   </section>
 
-  <section class="bg-odyssey-bone">
+  <!-- Per-community spec inventory -->
+  {communities.map((community) => {
+    const specs = specHomesByCommunity(community.slug);
+    if (specs.length === 0) return null;
+    return (
+      <section class="bg-odyssey-bone" id={community.slug}>
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+          <div class="flex items-center justify-between gap-4 flex-wrap mb-8">
+            <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">{community.name}</h2>
+            <span class="text-sm text-odyssey-stone uppercase tracking-wider font-semibold">{specs.filter(s => s.status === 'available').length} available</span>
+          </div>
+
+          <div class="bg-white rounded shadow-sm overflow-hidden">
+            <!-- Desktop table -->
+            <div class="hidden md:block">
+              <table class="w-full text-sm">
+                <thead class="bg-odyssey-charcoal text-odyssey-cream">
+                  <tr>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Address</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Lot</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Floor Plan</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Tentative Completion</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Price</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Status</th>
+                    <th class="px-4 py-3 text-right font-semibold uppercase tracking-wider text-xs"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {specs.map((spec, idx) => {
+                    const dim = spec.status === 'sold';
+                    const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-odyssey-bone';
+                    const plan = planBySlug.get(spec.planSlug);
+                    const planLive = plan?.status === 'live';
+                    return (
+                      <tr class={`${rowBg} ${dim ? 'opacity-60' : ''} border-t border-odyssey-stone/10`}>
+                        <td class="px-4 py-3 font-semibold text-odyssey-charcoal">{spec.address}</td>
+                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.lotNumber}</td>
+                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">
+                          {planLive ? (
+                            <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
+                          ) : (
+                            <span class="font-semibold">{plan?.name || spec.planSlug}</span>
+                          )}
+                          {plan?.beds && plan?.totalSqFt && (
+                            <span class="block text-xs text-odyssey-stone mt-0.5">{plan.totalSqFt.toLocaleString()} sq ft · {plan.beds} bed · {plan.baths} bath</span>
+                          )}
+                        </td>
+                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.tentativeCompletion}</td>
+                        <td class="px-4 py-3 text-odyssey-charcoal font-semibold whitespace-nowrap">{formatPrice(spec.price)}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <span class={
+                            spec.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
+                            spec.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
+                            spec.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
+                            'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
+                          }>
+                            {statusLabels[spec.status]}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                          {spec.status === 'available' && (
+                            <a href="/lets-talk/" class="text-xs font-semibold uppercase tracking-wider text-odyssey-accent hover:text-odyssey-accent-deep">Get info →</a>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile cards -->
+            <div class="md:hidden divide-y divide-odyssey-stone/10">
+              {specs.map(spec => {
+                const dim = spec.status === 'sold';
+                const plan = planBySlug.get(spec.planSlug);
+                const planLive = plan?.status === 'live';
+                return (
+                  <div class={`p-5 ${dim ? 'opacity-60' : ''}`}>
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="font-semibold text-odyssey-charcoal text-lg">{spec.address}</p>
+                        <p class="text-sm text-odyssey-stone-dark">{spec.lotNumber}</p>
+                      </div>
+                      <span class={
+                        spec.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
+                        spec.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
+                        spec.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
+                        'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
+                      }>
+                        {statusLabels[spec.status]}
+                      </span>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Plan</p>
+                        {planLive ? (
+                          <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
+                        ) : (
+                          <p class="font-semibold text-odyssey-charcoal">{plan?.name || spec.planSlug}</p>
+                        )}
+                        {plan?.totalSqFt && plan?.beds && (
+                          <p class="text-xs text-odyssey-stone mt-0.5">{plan.totalSqFt.toLocaleString()} sf · {plan.beds}br · {plan.baths}ba</p>
+                        )}
+                      </div>
+                      <div>
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Tentative Completion</p>
+                        <p class="font-semibold text-odyssey-stone-dark">{spec.tentativeCompletion}</p>
+                      </div>
+                      <div class="col-span-2">
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Price</p>
+                        <p class="font-semibold text-odyssey-charcoal">{formatPrice(spec.price)}</p>
+                      </div>
+                    </div>
+                    {spec.notes && (
+                      <p class="mt-3 text-xs text-odyssey-stone italic">{spec.notes}</p>
+                    )}
+                    {spec.status === 'available' && (
+                      <a href="/lets-talk/" class="mt-4 inline-block text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Get info →</a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  })}
+
+  <!-- "Don't see what you want" CTA -->
+  <section class="bg-white">
     <div class="max-w-3xl mx-auto px-6 lg:px-8 py-20 text-center">
-      <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">Inventory changes weekly.</h2>
+      <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">Don't see the right home?</h2>
       <p class="mt-4 text-odyssey-stone-dark leading-relaxed">
-        Some Quick Move-In homes aren't listed online — contact us for the latest availability, address details, finishes, and pricing.
+        New specs go in the ground regularly. Tell us what you're looking for — location, plan, timeline — and we'll let you know what's coming next.
       </p>
       <a href="/lets-talk/" class="mt-8 inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
-        Get Started
+        Tell us what you're looking for
       </a>
     </div>
   </section>
 
-  <section class="bg-white">
+  <!-- Contact form -->
+  <section class="bg-odyssey-bone">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
       <ContactForm
-        heading="Looking for a home you can move into soon?"
-        intro="We'll send you our current Quick Move-In inventory."
+        heading="Want a Quick Move-In?"
+        intro="We'll send you a current list of available specs and timelines."
       />
     </div>
   </section>

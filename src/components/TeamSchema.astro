@@ -1,0 +1,47 @@
+---
+/**
+ * Per-team-member Person JSON-LD schema. Renders an ItemList wrapping
+ * Person objects for each team member.
+ *
+ * Usage on /meet-the-team/:
+ *   <Fragment slot="head">
+ *     <TeamSchema />
+ *   </Fragment>
+ */
+
+import { team } from '../data/team';
+
+const BASE_URL = 'https://buildodyssey.com';
+const teamUrl = `${BASE_URL}/meet-the-team/`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': teamUrl,
+  name: 'Meet the Odyssey Homes Team',
+  description: 'The people behind Odyssey Homes — builders, designers, and Project Consultants serving Eastern Idaho.',
+  url: teamUrl,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: team.length,
+    itemListElement: team.map((member, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.title,
+        image: member.image.startsWith('http') ? member.image : `${BASE_URL}${member.image}`,
+        description: member.bio,
+        worksFor: {
+          '@type': 'Organization',
+          name: 'Odyssey Homes',
+          url: BASE_URL,
+        },
+      },
+    })),
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

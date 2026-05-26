@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+---
+
+<Layout
+  title="Page Not Found — Odyssey Homes"
+  description="The page you're looking for doesn't exist. Browse our floor plans, communities, or get in touch."
+>
+  <Header />
+
+  <section class="bg-odyssey-bone">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-24 lg:py-32 text-center">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">404</p>
+      <h1 class="mt-4 text-4xl lg:text-5xl font-semibold tracking-tight text-odyssey-charcoal">
+        Page not found.
+      </h1>
+      <p class="mt-6 text-lg text-odyssey-stone-dark leading-relaxed">
+        The page you're looking for doesn't exist — it may have moved, been renamed, or never existed. Here are a few places that might help:
+      </p>
+      <div class="mt-10 grid sm:grid-cols-2 gap-3 max-w-md mx-auto">
+        <a href="/" class="bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-5 rounded border border-odyssey-stone/30 transition-colors">Home</a>
+        <a href="/semi-custom-home-floor-plans/" class="bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-5 rounded border border-odyssey-stone/30 transition-colors">Floor Plans</a>
+        <a href="/available-lots/" class="bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-5 rounded border border-odyssey-stone/30 transition-colors">Available Lots</a>
+        <a href="/quick-move-ins/" class="bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-5 rounded border border-odyssey-stone/30 transition-colors">Quick Move-Ins</a>
+        <a href="/estimate/" class="bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-5 rounded border border-odyssey-stone/30 transition-colors">Build Estimate</a>
+        <a href="/lets-talk/" class="bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-5 rounded transition-colors">Let's Talk</a>
+      </div>
+      <p class="mt-12 text-sm text-odyssey-stone-dark">
+        Or call us at <a href={site.phoneHref} class="font-semibold text-odyssey-accent hover:underline">{site.phone}</a>.
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

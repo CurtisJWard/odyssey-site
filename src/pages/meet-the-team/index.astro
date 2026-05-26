@@ -2,10 +2,17 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TeamSchema from '../../components/TeamSchema.astro';
+import MembershipBadges from '../../components/MembershipBadges.astro';
 import { team } from '../../data/team';
 ---
 
-<Layout title="Meet the Team — Odyssey Homes" description="Meet the Odyssey Homes team — builders, designers, sales specialists, and field leaders bringing your semi-custom home to life.">
+<Layout title="Meet the Team — Odyssey Homes" description="Meet the Odyssey Homes team — builders, designers, Project Consultants, and field leaders bringing your semi-custom home to life.">
+  <Fragment slot="head">
+    <TeamSchema />
+    <Breadcrumbs />
+  </Fragment>
   <Header />
 
   <section class="bg-odyssey-charcoal text-odyssey-cream">
@@ -39,6 +46,9 @@ import { team } from '../../data/team';
       </div>
     </div>
   </section>
+
+  <!-- Memberships & Associations — EIHBA + NAHB trust marks -->
+  <MembershipBadges variant="full" />
 
   <Footer />
 </Layout>

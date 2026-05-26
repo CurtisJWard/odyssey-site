@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ContactForm from '../components/ContactForm.astro';
+import VisitUs from '../components/VisitUs.astro';
 import { livePlans } from '../data/plans';
 import { communities } from '../data/communities';
 import { site } from '../data/site';
@@ -20,7 +21,7 @@ const featuredPlans = livePlans.slice(0, 3);
       <div class="absolute inset-0 bg-gradient-to-r from-odyssey-charcoal/85 via-odyssey-charcoal/55 to-odyssey-charcoal/30"></div>
     </div>
     <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-28 lg:py-44">
-      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Idaho Falls · Semi-Custom Homes</p>
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Eastern Idaho · New Construction Homes</p>
       <h1 class="mt-6 text-5xl lg:text-7xl font-bold tracking-tight max-w-4xl leading-[1.05] text-white">
         {site.tagline}
       </h1>
@@ -37,6 +38,21 @@ const featuredPlans = livePlans.slice(0, 3);
       </div>
       <p class="mt-10 text-sm text-odyssey-cream/80">
         Today's interest rate: <span class="font-bold text-odyssey-accent-light">{site.interestRate}</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Service area strip — Eastern Idaho positioning -->
+  <section class="bg-odyssey-charcoal text-odyssey-cream py-8 border-t border-odyssey-cream/10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+      <p class="text-sm uppercase tracking-widest text-odyssey-accent-light font-semibold">
+        Building Across Eastern Idaho
+      </p>
+      <p class="mt-3 text-lg">
+        Idaho Falls · Ammon · Rigby · Rexburg · Shelley · Blackfoot
+      </p>
+      <p class="mt-2 text-sm text-odyssey-cream/70">
+        New construction only — we don't do remodels or additions.
       </p>
     </div>
   </section>
@@ -71,9 +87,9 @@ const featuredPlans = livePlans.slice(0, 3);
         </div>
         <div>
           <div class="h-[3px] w-12 bg-odyssey-accent mb-6"></div>
-          <h3 class="text-2xl font-semibold text-odyssey-charcoal">Thoughtfully Designed for Life in Idaho Falls</h3>
+          <h3 class="text-2xl font-semibold text-odyssey-charcoal">Thoughtfully Designed for Life in Eastern Idaho</h3>
           <p class="mt-4 text-odyssey-stone-dark leading-relaxed">
-            Plans built for Idaho — heated garages, finished basements, mudrooms that work in winter, and outdoor spaces that come alive in summer.
+            Plans built for Eastern Idaho — from Idaho Falls to Rexburg, Shelley to Blackfoot. Heated garages, finished basements, mudrooms that work in winter, outdoor spaces that come alive in summer.
           </p>
         </div>
       </div>
@@ -169,20 +185,44 @@ const featuredPlans = livePlans.slice(0, 3);
     </div>
   </section>
 
-  <!-- Contact -->
+  <!-- Visit Us (Showroom) -->
+  <VisitUs variant="section" />
+
+  <!-- Out-of-state buyer welcome -->
   <section class="bg-odyssey-bone">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8 py-20 text-center">
+      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Moving to Eastern Idaho?</p>
+      <h2 class="mt-4 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">
+        Building from out of state? We've got you.
+      </h2>
+      <p class="mt-6 text-lg text-odyssey-stone-dark leading-relaxed max-w-3xl mx-auto">
+        A good portion of our buyers are relocating to Eastern Idaho from out of state. We handle virtual selection meetings, video walkthroughs, and digital signoffs through our client portal — so you can build with confidence even if you can't be on-site every week. Talk to us about your move.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/moving-to-eastern-idaho/" class="inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+          Read Our Relocation Guide
+        </a>
+        <a href="/lets-talk/" class="inline-block bg-white hover:bg-odyssey-sand text-odyssey-charcoal font-semibold py-3 px-7 rounded border border-odyssey-stone/30 transition-colors">
+          Tell Us About Your Move
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="bg-white">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32 grid md:grid-cols-2 gap-16 items-start">
       <div>
         <ContactForm
-          heading="Ready to Build Your Semi-Custom Idaho Falls Home?"
-          intro="Send us a message and one of our New Construction Specialists will be in touch."
+          heading="Ready to Build Your Eastern Idaho Home?"
+          intro="Send us a message and one of our Project Consultants will be in touch."
         />
       </div>
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-odyssey-accent">Visit Us Today</p>
         <h3 class="mt-3 text-2xl font-semibold text-odyssey-charcoal">Schedule a Meeting</h3>
         <p class="mt-4 text-odyssey-stone-dark leading-relaxed">
-          Stop by either of our Ammon offices, or call ahead to set a time.
+          Stop by our Ammon office, or call ahead to set a time.
         </p>
         <div class="mt-8 space-y-6">
           {site.addresses.map(addr => (
