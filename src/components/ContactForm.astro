@@ -48,6 +48,54 @@ const isDark = variant === 'dark';
           : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'} />
     </label>
     <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Where do you want to build? *</span>
+      <select name="build-location" required
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'}>
+        <option value="">Select a location</option>
+        <option value="idaho-falls">Idaho Falls</option>
+        <option value="ammon">Ammon</option>
+        <option value="rigby">Rigby</option>
+        <option value="rexburg">Rexburg</option>
+        <option value="shelley">Shelley</option>
+        <option value="blackfoot">Blackfoot</option>
+        <option value="pocatello">Pocatello</option>
+        <option value="other-eastern-idaho">Other Eastern Idaho area</option>
+        <option value="moving-from-out-of-state">Moving here from out of state</option>
+        <option value="not-sure-yet">Not sure yet</option>
+        <option value="outside-eastern-idaho">Outside Eastern Idaho</option>
+      </select>
+    </label>
+    <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>What type of project? *</span>
+      <select name="project-type" required
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'}>
+        <option value="">Select a project type</option>
+        <option value="new-construction-our-lot">New construction on an Odyssey lot</option>
+        <option value="new-construction-my-lot">New construction on my own lot</option>
+        <option value="quick-move-in">Quick move-in / spec home</option>
+        <option value="just-exploring">Just exploring options</option>
+        <option value="remodel-or-addition">Remodel or addition (NOT a fit — Odyssey doesn't do these)</option>
+      </select>
+    </label>
+    <label class="block sm:col-span-2">
+      <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Timeline</span>
+      <select name="timeline"
+        class={isDark
+          ? 'mt-1 w-full rounded border border-odyssey-cream/20 bg-white/10 text-odyssey-cream px-3 py-2 focus:border-odyssey-accent focus:outline-none'
+          : 'mt-1 w-full rounded border border-odyssey-stone/30 bg-white px-3 py-2 focus:border-odyssey-accent focus:outline-none'}>
+        <option value="">Select a timeline</option>
+        <option value="ready-now">Ready to start now</option>
+        <option value="3-6-months">3-6 months out</option>
+        <option value="6-12-months">6-12 months out</option>
+        <option value="12-months-plus">More than a year out</option>
+        <option value="exploring">Just exploring</option>
+      </select>
+    </label>
+    <label class="block sm:col-span-2">
       <span class={isDark ? 'text-xs font-semibold uppercase tracking-widest text-odyssey-cream/70' : 'text-xs font-semibold uppercase tracking-widest text-odyssey-stone'}>Message</span>
       <textarea name="message" rows="4"
         class={isDark

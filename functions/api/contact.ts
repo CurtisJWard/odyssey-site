@@ -1,7 +1,11 @@
+import { fetchTodaysAgent, buildRecipients, buildBcc } from '../_shared/routing';
+
 interface Env {
   RESEND_API_KEY: string;
   FORM_RECIPIENTS: string;
   FORM_FROM: string;
+  FORM_BCC?: string;
+  TODAYS_AGENT_URL?: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -13,6 +17,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const lastName = String(formData.get('last-name') || '').trim();
     const email = String(formData.get('email') || '').trim();
     const phone = String(formData.get('phone') || '').trim();
+    const buildLocation = String(formData.get('build-location') || '').trim();
+    const projectType = String(formData.get('project-type') || '').trim();
+    const timeline = String(formData.get('timeline') || '').trim();
     const message = String(formData.get('message') || '').trim();
 
     if (!firstName || !lastName || !email) {
@@ -25,16 +32,61 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return jsonResponse({ ok: false, error: 'Message too long' }, 400);
     }
 
-    const recipients = env.FORM_RECIPIENTS.split(',').map(s => s.trim()).filter(Boolean);
-    const subject = `Odyssey Homes inquiry — ${firstName} ${lastName}`;
+    // ─── Lead qualification — soft routing for no-fit submissions ───
+    // Two automatic disqualifiers: remodel/addition requests, and out-of-area
+    // builds. Both still email the team (with a flag) so we can decline
+    // politely, but they're tagged so the consultant knows not to invest time.
+    const isNoFitProject = projectType === 'remodel-or-addition';
+    const isOutOfArea = buildLocation === 'outside-eastern-idaho';
+    const isNoFit = isNoFitProject || isOutOfArea;
+    const noFitReason = isNoFitProject
+      ? 'Project type: remodel/addition (Odyssey does new construction only)'
+      : isOutOfArea
+        ? 'Build location: outside Eastern Idaho'
+        : null;
+
+    // Pretty labels for the email body
+    const buildLocationLabel = formatChoice(buildLocation, BUILD_LOCATION_LABELS);
+    const projectTypeLabel = formatChoice(projectType, PROJECT_TYPE_LABELS);
+    const timelineLabel = formatChoice(timeline, TIMELINE_LABELS);
+
+    const todaysAgent = await fetchTodaysAgent(env.TODAYS_AGENT_URL);
+    const recipients = buildRecipients(todaysAgent, env.FORM_RECIPIENTS);
+    const bcc = buildBcc(env.FORM_BCC, recipients);
+    const routedTo = todaysAgent ? `${todaysAgent.name} (on duty today)` : 'on-call team (no rotation event today)';
+
+    // Subject line surfaces build location for fast triage. No-fit leads get
+    // a flag prefix so consultants can spot them at a glance in the inbox.
+    const locationTag = buildLocationLabel ? ` — ${buildLocationLabel}` : '';
+    const flag = isNoFit ? '🚫 NO-FIT ' : '';
+    const subject = `${flag}Odyssey inquiry — ${firstName} ${lastName}${locationTag}`;
+
+    const noFitBlock = isNoFit ? `
+      <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;margin:16px 0;">
+        <p style="margin:0;font-weight:bold;color:#92400e;">⚠️ Flagged as no-fit</p>
+        <p style="margin:6px 0 0;color:#78350f;font-size:14px;">${escapeHtml(noFitReason || '')}</p>
+        <p style="margin:6px 0 0;color:#78350f;font-size:14px;">Recommended response: polite decline. Don't invest sales time.</p>
+      </div>
+    ` : '';
+
     const html = `
       <h2>New website inquiry — Odyssey Homes</h2>
-      <p><strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
-      <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
-      ${phone ? `<p><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ''}
-      ${message ? `<p><strong>Message:</strong></p><p style="white-space: pre-wrap;">${escapeHtml(message)}</p>` : ''}
+      ${noFitBlock}
+      <h3>Contact</h3>
+      <p>
+        <strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}<br />
+        <strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>
+        ${phone ? `<br /><strong>Phone:</strong> ${escapeHtml(phone)}` : ''}
+      </p>
+      <h3>Project</h3>
+      <p>
+        <strong>Build location:</strong> ${escapeHtml(buildLocationLabel || '(not specified)')}<br />
+        <strong>Project type:</strong> ${escapeHtml(projectTypeLabel || '(not specified)')}<br />
+        <strong>Timeline:</strong> ${escapeHtml(timelineLabel || '(not specified)')}
+      </p>
+      ${message ? `<h3>Message</h3><p style="white-space: pre-wrap;">${escapeHtml(message)}</p>` : ''}
       <hr />
-      <p style="color: #666; font-size: 12px;">Sent from buildodyssey.com — reply directly to respond to the sender.</p>
+      <p style="color: #666; font-size: 12px;">Sent from buildodyssey.com. Routed to ${escapeHtml(routedTo)}. Reply directly to respond to the sender.</p>
     `;
 
     const resendRes = await fetch('https://api.resend.com/emails', {
@@ -46,6 +98,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       body: JSON.stringify({
         from: env.FORM_FROM,
         to: recipients,
+        ...(bcc.length > 0 ? { bcc } : {}),
         reply_to: email,
         subject,
         html,
@@ -76,4 +129,36 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c] || c));
+}
+
+// Pretty labels for the qualifying-field select values
+const BUILD_LOCATION_LABELS: Record<string, string> = {
+  'idaho-falls': 'Idaho Falls',
+  'ammon': 'Ammon',
+  'rigby': 'Rigby',
+  'rexburg': 'Rexburg',
+  'shelley': 'Shelley',
+  'blackfoot': 'Blackfoot',
+  'pocatello': 'Pocatello',
+  'other-eastern-idaho': 'Other Eastern Idaho area',
+  'moving-from-out-of-state': 'Moving here from out of state',
+  'not-sure-yet': 'Not sure yet',
+  'outside-eastern-idaho': 'Outside Eastern Idaho',
+};
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+  'new-construction-our-lot': 'New construction on an Odyssey lot',
+  'new-construction-my-lot': 'New construction on my own lot',
+  'quick-move-in': 'Quick move-in / spec home',
+  'just-exploring': 'Just exploring options',
+  'remodel-or-addition': 'Remodel or addition',
+};
+const TIMELINE_LABELS: Record<string, string> = {
+  'ready-now': 'Ready to start now',
+  '3-6-months': '3-6 months out',
+  '6-12-months': '6-12 months out',
+  '12-months-plus': 'More than a year out',
+  'exploring': 'Just exploring',
+};
+function formatChoice(value: string, labels: Record<string, string>): string {
+  return labels[value] || value;
 }
