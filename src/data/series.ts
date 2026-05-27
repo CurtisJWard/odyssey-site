@@ -25,9 +25,9 @@ export const series: VideoSeries[] = [
     category: 'Client Resources',
   },
   {
-    slug: 'build-cost-tutorials',
-    name: 'How to Use the Build Cost Tool',
-    shortName: 'Build Cost Tutorials',
+    slug: 'home-quote-tutorials',
+    name: 'How to Use the Home Quote Tool',
+    shortName: 'Home Quote Tutorials',
     description: 'Walk through the Odyssey estimator — how to browse plans, customize options, generate your itemized cost summary, and save your progress.',
     longDescription: "The Odyssey Estimator is where the magic happens — every plan, every option, every dollar laid out in front of you. This series walks you through using it: browsing the floor plans, selecting your community and lot, customizing finishes and upgrades, and generating your itemized Cost Summary. By the end, you'll be building your number from your own couch.",
     category: 'Client Resources',
