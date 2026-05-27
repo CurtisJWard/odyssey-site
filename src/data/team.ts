@@ -8,18 +8,18 @@ export interface TeamMember {
 
 export const team: TeamMember[] = [
   {
-    name: 'Derek Thompson',
+    name: 'Curtis Ward',
     title: 'CEO',
     experience: '10+ years',
     image: '/media/z3akmgp5/headshots-010724-27-1.jpg',
-    bio: 'Derek leads Odyssey Homes with a commitment to excellence and a passion for innovation, exceeding expectations on every project.',
+    bio: 'Curtis leads Odyssey Homes with a commitment to excellence and a passion for innovation, exceeding expectations on every project.',
   },
   {
-    name: 'Curtis Ward',
+    name: 'Derek Thompson',
     title: 'Builder',
     experience: '20 years',
     image: '/media/rbse31rv/headshots-010724-28-1.jpg',
-    bio: 'Curtis is an experienced builder committed to quality craftsmanship who leads his team with passion and precision.',
+    bio: 'Derek is an experienced builder committed to quality craftsmanship who leads his team with passion and precision.',
   },
   {
     name: 'Natasha Ellis',
