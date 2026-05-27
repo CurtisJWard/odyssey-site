@@ -297,8 +297,32 @@ export const plans: Plan[] = [
   // to live with detail pages. Birch, Cypress, White Pine = existing single-
   // story specs that we're already building. Aria, Charleston, Oak Haven
   // are new two-story additions to the lineup (added 2026-05-26).
-  // Aria removed 2026-05-26 — pending sq ft documentation + renderings.
-  // Re-add when ready.
+  // Aria — two-story farmhouse, daylight basement (re-added 2026-05-27 with
+  // specs from Aria base plan PDF + rendering from Aria Ai Front.png).
+  {
+    slug: 'aria',
+    name: 'Aria',
+    status: 'live',
+    mainSqFt: 1243,
+    upperSqFt: 1243,
+    basementSqFt: 1243,
+    beds: 5,
+    baths: 3,
+    garage: STD_GARAGE,
+    garageOption: STD_GARAGE_OPTION,
+    styles: ['Farmhouse', 'Modern', 'Traditional'],
+    basementFinished: 'optional',
+    shortDescription: 'A thoughtfully designed two-story farmhouse with three full living levels, oversized garage, and a daylight basement.',
+    description: "The Aria is a thoughtfully designed two-story farmhouse that blends classic exterior charm with modern interior comfort. With a daylight basement, three full living levels, and an oversized garage, this plan offers exceptional space for growing families. The main floor features an open-concept layout connecting the kitchen, dining, and living areas, while the upper level delivers generous bedroom space and additional bathrooms. The walk-out basement provides flexible square footage that can be configured for additional bedrooms, a family room, or future expansion. The Aria is ideal for homeowners who want farmhouse styling with the practicality of a multi-level home and ample storage and parking.",
+    features: [
+      'Three full living levels (main, upper, daylight basement)',
+      'Open-concept kitchen, dining, and living on the main floor',
+      'Generous bedroom space on the upper level',
+      'Walk-out daylight basement — flexible expansion space',
+      'Oversized attached garage',
+    ],
+    exteriorImage: '/media/renderings/aria-exterior.png',
+  },
   {
     slug: 'birch',
     name: 'Birch',
@@ -320,8 +344,33 @@ export const plans: Plan[] = [
       'Framed basement ready to finish',
     ],
   },
-  // Charleston removed 2026-05-26 — pending sq ft documentation + renderings.
-  // Re-add when ready.
+  // Charleston — two-story compact footprint with vertical layout (re-added
+  // 2026-05-27 with specs from Charleston base plan PDF + rendering from
+  // Charleston Ai Front.png).
+  {
+    slug: 'charleston',
+    name: 'Charleston',
+    status: 'live',
+    mainSqFt: 1005,
+    upperSqFt: 1005,
+    basementSqFt: 1005,
+    beds: 5,
+    baths: 3,
+    garage: STD_GARAGE,
+    garageOption: STD_GARAGE_OPTION,
+    styles: ['Farmhouse', 'Modern', 'Traditional'],
+    basementFinished: 'optional',
+    shortDescription: 'Efficient two-story living in a compact, attractive footprint — three full levels delivering surprising square footage on a smaller lot.',
+    description: "The Charleston offers efficient two-story living in a compact, attractive footprint. This plan stacks comfortable living spaces across three levels — main, upper, and basement — delivering surprising square footage on a smaller lot. The main floor opens to a connected kitchen, dining, and living area, while the upper floor accommodates the primary bedroom suite plus additional bedrooms and bathrooms. The full daylight basement adds even more flexibility for finished living space, storage, or future expansion. With an attached garage and a smart vertical layout, the Charleston is ideal for buyers who want maximum livability without a sprawling footprint.",
+    features: [
+      'Three full living levels (main, upper, daylight basement)',
+      'Connected kitchen, dining, and living on the main floor',
+      'Primary bedroom suite on the upper level',
+      'Full daylight basement — flexible expansion space',
+      'Smart vertical layout for smaller lots',
+    ],
+    exteriorImage: '/media/renderings/charleston-exterior.png',
+  },
   {
     slug: 'cypress',
     name: 'Cypress',
