@@ -20,11 +20,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     return jsonResponse({ available: false, reason: 'Endpoint not configured' });
   }
 
-  // Edge cache, keyed per-hour. Only SUCCESS responses are cached — failures
-  // are retried on every request so a transient upstream issue doesn't get
-  // pinned for an hour. Bumped cache version to bust any old stale entries.
+  // Edge cache, keyed per 5-minute bucket. Only SUCCESS responses are cached —
+  // failures are retried on every request so a transient upstream issue doesn't
+  // get pinned. 5-min granularity means calendar edits reflect on the live site
+  // within 5 minutes max. Bumped cache version to bust any old stale entries.
+  const now = new Date();
+  const fiveMinBucket = Math.floor(now.getMinutes() / 5) * 5;
+  const bucketStr = `${now.toISOString().slice(0, 13)}-${String(fiveMinBucket).padStart(2, '0')}`;
   const cacheKey = new Request(
-    `https://internal.cache/todays-agent?v=3&d=${new Date().toISOString().slice(0, 13)}`,
+    `https://internal.cache/todays-agent?v=4&d=${bucketStr}`,
     { method: 'GET' }
   );
   // @ts-ignore — caches.default exists in Cloudflare Workers runtime
