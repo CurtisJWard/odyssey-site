@@ -45,15 +45,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         ? 'Build location: outside Eastern Idaho'
         : null;
 
-    // ─── Soft warning: out-of-state area code ─────────────────────────
-    // Not a hard no-fit — relocating buyers from out of state ARE a target
-    // segment. But surface the area code so the consultant can scan the
-    // message for "moving to" / "relocating" before investing time on what
-    // might be an out-of-area shopper who slipped past the location dropdown.
-    const phoneDigits = phone.replace(/\D/g, '');
-    const areaCode = phoneDigits.length >= 10 ? phoneDigits.slice(-10, -7) : '';
-    const isOutOfStateAreaCode = areaCode !== '' && !IDAHO_AREA_CODES.includes(areaCode);
-
     // Pretty labels for the email body
     const buildLocationLabel = formatChoice(buildLocation, BUILD_LOCATION_LABELS);
     const projectTypeLabel = formatChoice(projectType, PROJECT_TYPE_LABELS);
@@ -65,12 +56,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const routedTo = todaysAgent ? `${todaysAgent.name} (on duty today)` : 'on-call team (no rotation event today)';
 
     // Subject line surfaces build location for fast triage. No-fit leads get
-    // a hard flag prefix; out-of-state area codes get a soft warning prefix
-    // (consultants still treat as live, just verify before deep investment).
+    // a flag prefix so consultants can spot them at a glance in the inbox.
     const locationTag = buildLocationLabel ? ` — ${buildLocationLabel}` : '';
-    const noFitFlag = isNoFit ? '🚫 NO-FIT ' : '';
-    const areaCodeFlag = !isNoFit && isOutOfStateAreaCode ? '⚠️ OUT-OF-STATE AREA CODE — ' : '';
-    const subject = `${noFitFlag}${areaCodeFlag}Odyssey inquiry — ${firstName} ${lastName}${locationTag}`;
+    const flag = isNoFit ? '🚫 NO-FIT ' : '';
+    const subject = `${flag}Odyssey inquiry — ${firstName} ${lastName}${locationTag}`;
 
     const noFitBlock = isNoFit ? `
       <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;margin:16px 0;">
@@ -80,17 +69,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       </div>
     ` : '';
 
-    const areaCodeBlock = !isNoFit && isOutOfStateAreaCode ? `
-      <div style="background:#fef9c3;border-left:4px solid #eab308;padding:12px 16px;margin:16px 0;">
-        <p style="margin:0;font-weight:bold;color:#854d0e;">⚠️ Out-of-state area code</p>
-        <p style="margin:6px 0 0;color:#713f12;font-size:14px;">Phone (${escapeHtml(phone)}) has non-Idaho area code <strong>${escapeHtml(areaCode)}</strong>. Could be a relocating buyer (high value) or an out-of-area shopper. Scan the message for "moving to" / state names before significant time investment.</p>
-      </div>
-    ` : '';
-
     const html = `
       <h2>New website inquiry — Odyssey Homes</h2>
       ${noFitBlock}
-      ${areaCodeBlock}
       <h3>Contact</h3>
       <p>
         <strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}<br />
@@ -149,11 +130,6 @@ function escapeHtml(s: string): string {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c] || c));
 }
-
-// Idaho area codes — phones starting with these are treated as local.
-// 208 is the historical statewide area code; 986 is the newer overlay
-// added in 2017 to handle number exhaustion.
-const IDAHO_AREA_CODES = ['208', '986'];
 
 // Pretty labels for the qualifying-field select values
 const BUILD_LOCATION_LABELS: Record<string, string> = {
