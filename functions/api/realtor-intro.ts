@@ -35,7 +35,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       'idaho-falls': 'Idaho Falls', 'ammon': 'Ammon', 'rigby': 'Rigby',
       'rexburg': 'Rexburg', 'shelley': 'Shelley', 'blackfoot': 'Blackfoot',
       'pocatello': 'Pocatello', 'other-eastern-idaho': 'Other Eastern Idaho area',
-      'moving-from-out-of-state': 'Moving here from out of state', 'not-sure-yet': 'Not sure yet',
+      'moving-from-out-of-state': 'Moving here from out of state', 'not-sure-yet': 'Eastern Idaho but not sure which city yet',
     };
     const projectTypeLabels: Record<string, string> = {
       'new-construction-our-lot': 'New construction on an Odyssey lot',
