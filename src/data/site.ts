@@ -29,8 +29,8 @@ export const site = {
     googleMapsUrl: 'https://www.google.com/maps/dir/?api=1&destination=2999+Lancer+Avenue+Ammon+ID+83406',
   },
   social: {
-    facebook: 'https://www.facebook.com/buildodyssey/',
-    instagram: 'https://www.instagram.com/buildodyssey/',
+    facebook: 'https://www.facebook.com/OdysseyHomesIdaho/',
+    instagram: 'https://www.instagram.com/odysseyhomesid/',
     youtube: 'https://www.youtube.com/@buildodysseyhomes',
   },
   // Buildertrend customer portal — canonical client-facing login URL.
