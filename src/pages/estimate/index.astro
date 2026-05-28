@@ -6,7 +6,11 @@ import { site } from '../../data/site';
 
 // Sales Agent Login points at the Apps Script web app for the Upgrades & Options tool.
 // Reps and managers use this link; clients use the magic link their agent or Realtor texts them.
-const SALES_AGENT_LOGIN_URL = 'https://script.google.com/macros/s/AKfycbwBvVqPNsbBx23CNytvk2L8Ld_yAD120qsmZhWOtyBZ/exec';
+// 2026-05-28: old deployment (AKfycbwBvVqPNsb...) was archived/dead, causing
+// "Sorry, unable to open the file" errors for mobile buyers. Pointed at the
+// "Initial Curtis-owned" active deployment (Version 10) with "Anyone" access —
+// anonymous-friendly, no Google login required.
+const SALES_AGENT_LOGIN_URL = 'https://script.google.com/macros/s/AKfycbyCBOgU6SyWUAgerb-_2iT9gOJmwgdR4-vRmahXMTIjgfchH7tzCJ1ufNLkVkovjwYnYQ/exec';
 
 // Embedded walkthrough video. Replace with YouTube embed URL once Curtis records it.
 const videoEmbedUrl: string | null = null;
