@@ -58,7 +58,9 @@ function buildMergedSpecHomes(): SpecHome[] {
       notes: l.notes,
     }));
 
-  return [...generatedSpecs, ...masterShells];
+  // Only show Job Progress specs — master-sheet-only lots (no address/plan) are
+  // excluded to avoid confusing buyers with raw lot prices on the quick-move-ins page.
+  return [...generatedSpecs];
 }
 
 export const specHomes: SpecHome[] = buildMergedSpecHomes();
