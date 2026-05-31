@@ -13,10 +13,13 @@ pages_build_output_dir = "dist"
 FORM_RECIPIENTS = "kaysha@buildodyssey.com,susan@buildodyssey.com,gary@buildodyssey.com"
 FORM_FROM = "Odyssey Homes <noreply@buildodyssey.com>"
 
-# Silent leadership/ops BCC on every form submission. Dedup'd against the
-# primary recipient so no one gets the same email twice. Update this list
-# (then push a deploy) to add/remove people who should see every lead.
-FORM_BCC = "curtis@buildodyssey.com,derek@buildodyssey.com,natasha@buildodyssey.com"
+# Silent owner BCC on every form submission — Curtis + Derek see every
+# lead route through the site so they can monitor sales activity without
+# the rep knowing they're watching. Dedup'd against the primary recipient
+# so no one gets the same email twice. Natasha was here for ops visibility
+# but Curtis decided 2026-05-31 to keep this owner-only (she already has
+# enough inbox volume).
+FORM_BCC = "curtis@buildodyssey.com,derek@buildodyssey.com"
 
 # Apps Script web app endpoint that returns today's on-call agent for /estimate.
 # Read by functions/api/todays-agent.ts. Public read-only — no secret.
