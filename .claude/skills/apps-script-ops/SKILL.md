@@ -58,18 +58,30 @@ After `clasp push`, the new code is in the cloud but the live deployment still s
 3. Click **Deploy → Manage deployments**
 4. Click the pencil icon next to the active deployment
 5. Change **Version** to **New version**
-6. Click **Deploy**
+6. ⚠️ **CRITICAL — verify access settings before clicking Deploy:**
+   - **Execute as:** `Me (curtis@buildodyssey.com)`
+   - **Who has access:** `Anyone` (the truly-public option — NOT "Anyone with Google account")
+   - These dropdowns can silently flip back when you create a new version, especially with Workspace policy interference. We've been burned twice. Verify every time.
+7. Click **Deploy**
 
 The `/exec` URL stays the same. Old versions are archived (you can roll back from the same menu).
 
-**Post-deploy smoke test — always run:**
+**Post-deploy smoke tests — ALWAYS run both:**
 
 ```bash
+# 1. Today's-agent endpoint health (deploy identity / calendar access)
 curl -s https://buildodyssey.com/api/todays-agent
 ```
 
 If it returns `{"available":true,"firstName":"...","email":"..."}` — deploy is healthy.
 If it returns `{"available":false,"reason":"calendar not accessible"}` — the deploy went out under the wrong identity. See "Deploy identity" below.
+
+```bash
+# 2. Configurator public-access check (Who has access flipped?)
+cd ~/Odyssey-Code/upgrades-and-options && ./smoke-test-deploy.sh
+```
+
+Returns `✅ HEALTHY` if the configurator URL is publicly accessible to logged-out buyers, or `❌ FAILED` with concrete fix steps if "Who has access" flipped back to "Anyone with Google account" or "Only myself" during the deploy. The script lives in the Apps Script repo and the URL inside it is the one referenced by `~/Code/odyssey-site/src/pages/estimate/index.astro`.
 
 **When is a redeploy required?**
 - The `doGet` function changed (handles URL params, returns HTML or JSON)
