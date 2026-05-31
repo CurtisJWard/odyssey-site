@@ -50,16 +50,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const projectTypeLabel = formatChoice(projectType, PROJECT_TYPE_LABELS);
     const timelineLabel = formatChoice(timeline, TIMELINE_LABELS);
 
-    const todaysAgent = await fetchTodaysAgent(env.TODAYS_AGENT_URL);
+    const agentResult = await fetchTodaysAgent(env.TODAYS_AGENT_URL);
+    const todaysAgent = agentResult.agent;
     const recipients = buildRecipients(todaysAgent, env.FORM_RECIPIENTS);
     const bcc = buildBcc(env.FORM_BCC, recipients);
-    const routedTo = todaysAgent ? `${todaysAgent.name} (on duty today)` : 'on-call team (no rotation event today)';
+    const routedTo = todaysAgent
+      ? `${todaysAgent.name} (on duty today)`
+      : agentResult.status === 'unreachable'
+        ? `on-call team (⚠️ rotation calendar unreachable — ${agentResult.reason || 'unknown error'})`
+        : 'on-call team (no rotation event today)';
 
     // Subject line surfaces build location for fast triage. No-fit leads get
-    // a flag prefix so consultants can spot them at a glance in the inbox.
+    // a flag prefix; a broken rotation calendar gets its own flag so the team
+    // sees something is wrong instead of just noticing "why did this email
+    // go to all three of us?" days later.
     const locationTag = buildLocationLabel ? ` — ${buildLocationLabel}` : '';
-    const flag = isNoFit ? '🚫 NO-FIT ' : '';
-    const subject = `${flag}Odyssey inquiry — ${firstName} ${lastName}${locationTag}`;
+    const noFitFlag = isNoFit ? '🚫 NO-FIT ' : '';
+    const calBrokenFlag = !todaysAgent && agentResult.status === 'unreachable'
+      ? '⚠️ ROTATION CAL BROKEN — '
+      : '';
+    const subject = `${noFitFlag}${calBrokenFlag}Odyssey inquiry — ${firstName} ${lastName}${locationTag}`;
 
     const noFitBlock = isNoFit ? `
       <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;margin:16px 0;">

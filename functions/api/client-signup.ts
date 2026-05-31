@@ -56,10 +56,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return jsonResponse({ ok: false, error: 'Notes too long' }, 400);
     }
 
-    const todaysAgent = await fetchTodaysAgent(env.TODAYS_AGENT_URL);
+    const agentResult = await fetchTodaysAgent(env.TODAYS_AGENT_URL);
+    const todaysAgent = agentResult.agent;
     const recipients = buildRecipients(todaysAgent, env.FORM_RECIPIENTS);
     const bcc = buildBcc(env.FORM_BCC, recipients);
-    const routedTo = todaysAgent ? `${todaysAgent.name} (on duty today)` : 'on-call team (no rotation event today)';
+    const routedTo = todaysAgent
+      ? `${todaysAgent.name} (on duty today)`
+      : agentResult.status === 'unreachable'
+        ? `on-call team (⚠️ rotation calendar unreachable — ${agentResult.reason || 'unknown error'})`
+        : 'on-call team (no rotation event today)';
     const locationTag = buildLocationLabel ? ` — ${buildLocationLabel}` : '';
     const subject = `📞 Call request — ${name}${locationTag} wants estimator access`;
     const html = `

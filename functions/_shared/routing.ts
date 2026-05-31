@@ -12,34 +12,65 @@ export interface TodaysAgent {
 }
 
 /**
- * Fetches today's on-duty agent from the Apps Script endpoint.
- * Returns null if no agent is matched, the endpoint isn't configured,
- * or the upstream fails — the caller should fall back to FORM_RECIPIENTS.
+ * Distinguishes the THREE meaningful outcomes when we ask Apps Script "who's
+ * on duty today?". This matters because both `no-event` and `unreachable`
+ * cause fallback routing to FORM_RECIPIENTS — but `unreachable` is a SILENT
+ * FAILURE the team should be told about (in the email subject), while
+ * `no-event` is normal (e.g., a holiday with no rotation event scheduled).
  */
-export async function fetchTodaysAgent(url: string | undefined): Promise<TodaysAgent | null> {
-  if (!url) return null;
+export type TodaysAgentStatus = 'matched' | 'no-event' | 'unreachable';
+
+export interface TodaysAgentResult {
+  agent: TodaysAgent | null;
+  status: TodaysAgentStatus;
+  /** Raw reason string from upstream when status is 'unreachable' or 'no-event'. Useful for debugging. */
+  reason?: string;
+}
+
+/**
+ * Fetches today's on-duty agent from the Apps Script endpoint and returns
+ * both the agent (if matched) and a status describing what happened.
+ *
+ * Callers should fall back to FORM_RECIPIENTS whenever `agent` is null —
+ * but should ALSO flag the email subject when `status === 'unreachable'`
+ * so a broken upstream doesn't sit silently for days.
+ */
+export async function fetchTodaysAgent(url: string | undefined): Promise<TodaysAgentResult> {
+  if (!url) return { agent: null, status: 'unreachable', reason: 'No TODAYS_AGENT_URL configured' };
   try {
     const res = await fetch(url, {
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) return { agent: null, status: 'unreachable', reason: `Upstream HTTP ${res.status}` };
     const data = await res.json() as {
       available?: boolean;
       email?: string;
       name?: string;
       firstName?: string;
+      reason?: string;
     };
     if (data.available && data.email) {
       return {
-        email: data.email,
-        name: data.name || data.firstName || 'Odyssey Team',
-        firstName: data.firstName || '',
+        agent: {
+          email: data.email,
+          name: data.name || data.firstName || 'Odyssey Team',
+          firstName: data.firstName || '',
+        },
+        status: 'matched',
       };
     }
-    return null;
-  } catch {
-    return null;
+    // Distinguish "no event today" (normal) from any other reason (broken).
+    // Apps Script returns reason='no matching event today' on legit empty days.
+    const reason = data.reason || 'unknown';
+    const isLegitEmpty = /no matching event/i.test(reason);
+    return {
+      agent: null,
+      status: isLegitEmpty ? 'no-event' : 'unreachable',
+      reason,
+    };
+  } catch (err) {
+    return { agent: null, status: 'unreachable', reason: err instanceof Error ? err.message : String(err) };
   }
 }
 
