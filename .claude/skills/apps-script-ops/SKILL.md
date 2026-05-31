@@ -20,7 +20,7 @@ Code lives at `~/Odyssey-Code/upgrades-and-options/`. Managed locally via `clasp
 | Script ID | `1qALJkhqZBEpiqY7MWCuh2iMh12m-S3OPqHTwwbcperplctMH9cZhkO0S` |
 | Local repo | `~/Odyssey-Code/upgrades-and-options/` |
 | Apps Script editor URL | https://script.google.com/d/1qALJkhqZBEpiqY7MWCuh2iMh12m-S3OPqHTwwbcperplctMH9cZhkO0S/edit |
-| Deployed web app URL | https://script.google.com/macros/s/AKfycbwBvVqPNsbBx23CNytvk2L8Ld_yAD120qsmZhWOtyBZ/exec |
+| Deployed web app URL | https://script.google.com/macros/s/AKfycbyCBOgU6SyWUAgerb-_2iT9gOJmwgdR4-vRmahXMTIjgfchH7tzCJ1ufNLkVkovjwYnYQ/exec (deployed as `curtis@buildodyssey.com` on 2026-05-31 — see "Deploy identity" below) |
 | Rotation calendar ID | `c_b9e33b242c27c5ae55d17297fe51a9c7f221be06cfb2d0db718a85732cbf7d42@group.calendar.google.com` |
 | Lot Inventory sheet ID | `1ES3JjgZaqj_uEci3DdExDF-eC8eumDz0wrvb8avEB9g` |
 | Job Progress sheet ID | `1tWrK9tvOyNCl5WcPUXNzYmHKU_1VEpD8A5yKiGk54Z8` |
@@ -51,13 +51,25 @@ The `--force` flag bypasses interactive prompts. Safe — `clasp push` won't del
 
 After `clasp push`, the new code is in the cloud but the live deployment still serves the OLD version. To publish:
 
+**Before clicking Deploy — check the account chip in the top-right of the Apps Script editor.** If it shows anything other than `curtis@buildodyssey.com`, switch accounts BEFORE deploying. See "Deploy identity (critical — burned us once)" below for why this matters.
+
 1. Open the Apps Script editor (URL above)
-2. Click **Deploy → Manage deployments**
-3. Click the pencil icon next to the active deployment
-4. Change **Version** to **New version**
-5. Click **Deploy**
+2. **Verify the account chip in the top-right shows `Curtis Ward / curtis@buildodyssey.com`** — switch if not
+3. Click **Deploy → Manage deployments**
+4. Click the pencil icon next to the active deployment
+5. Change **Version** to **New version**
+6. Click **Deploy**
 
 The `/exec` URL stays the same. Old versions are archived (you can roll back from the same menu).
+
+**Post-deploy smoke test — always run:**
+
+```bash
+curl -s https://buildodyssey.com/api/todays-agent
+```
+
+If it returns `{"available":true,"firstName":"...","email":"..."}` — deploy is healthy.
+If it returns `{"available":false,"reason":"calendar not accessible"}` — the deploy went out under the wrong identity. See "Deploy identity" below.
 
 **When is a redeploy required?**
 - The `doGet` function changed (handles URL params, returns HTML or JSON)
@@ -161,7 +173,21 @@ The script never writes back to Job Progress.
 
 ### "Calendar not accessible"
 
-The running user (Curtis) has lost access to the rotation calendar. Re-share it with `curtis@buildodyssey.com` at "See all event details" or higher.
+The most common cause is NOT a calendar share issue — it's a **deploy identity** issue. See "Deploy identity (critical — burned us once)" below for the full story.
+
+Quick triage:
+
+1. Run `debugTodaysAgent()` from the Apps Script editor (signed in as `curtis@buildodyssey.com`). If THAT works, the calendar is fine; the live web app is just running under a different identity. Redeploy as Curtis to fix.
+2. If `debugTodaysAgent()` ALSO returns "calendar not accessible," then Curtis genuinely lost calendar access. Open the rotation calendar's Settings and sharing → confirm `curtis@buildodyssey.com` is on the share list with "See all event details" or higher.
+
+The Sales Agent Calendar share list (as of 2026-05-31):
+- Curtis Ward (curtis@buildodyssey.com) — See all event details ✅
+- Derek (derek@buildodyssey.com) — Make changes and manage sharing
+- Kaysha Landon (kaysha@buildodyssey.com) — Owner
+- Gary, Natasha, Rick, Shantell — See all event details
+- kaysha.therealtyshop@gmail.com, susan.therealtyshop@gmail.com — See all event details (personal Gmail mirrors)
+
+**Dominik is NOT currently on this list.** If Dominik ever deploys the Apps Script, add `dominik@buildodyssey.com` to the share list first — otherwise the moment he deploys, the calendar becomes unreachable and lead routing falls back to fan-out.
 
 ### "Missing required columns in master sheet"
 
@@ -175,11 +201,33 @@ You pushed code with `clasp push` but didn't redeploy. The `/exec` URL serves th
 
 Apps Script has daily quotas (URL fetches, calendar reads, etc.). For a low-traffic site like buildodyssey.com, you'll never hit them — but if you do, throttle the website's fetch frequency or add caching at the Cloudflare Pages Function layer.
 
+## Deploy identity (critical — burned us once)
+
+The Apps Script web app is deployed with `executeAs: USER_DEPLOYING` — meaning the script runs under the identity of whoever **last clicked Deploy**. That identity needs `curtis@buildodyssey.com` because:
+
+- The rotation calendar is shared with `curtis@buildodyssey.com` (not `curtisjward@gmail.com`)
+- The lot inventory + job progress sheets are shared with `curtis@buildodyssey.com`
+- If the script deploys under any other identity, `getCalendarById()` returns `null` → `/api/todays-agent` returns `{"available":false,"reason":"calendar not accessible"}` → form leads fan out to all 3 reps instead of routing to the on-duty rep
+
+**The trap (this is what bit us on 2026-05-31):**
+
+When Curtis clicks the Apps Script editor URL from a browser session that's signed into multiple Google accounts, it opens under whichever account is "first" — for him, that defaults to `curtisjward@gmail.com` (personal Gmail). If you click Deploy without first switching to the `curtis@buildodyssey.com` account, the deployment goes out under personal Gmail.
+
+Symptom: emails route to ALL three reps instead of just the on-duty rep. Silent failure — nothing tells you it broke until you notice the routing pattern (which can take days).
+
+**The fix:**
+
+1. **Always check the account chip in the top-right corner before clicking Deploy.** If it shows anything but Curtis Ward / curtis@buildodyssey.com — STOP. Click the chip, switch accounts, reload the editor, then deploy.
+2. **Editing an existing deployment preserves the original `executeAs` identity.** Even if you're signed in as the right account when you click "Edit → New version → Deploy," the deployment still runs as whoever first created it. To fix a deployment that's stuck under the wrong identity, you need to create a NEW deployment (Deploy → New deployment), then update the URL the website points at in `wrangler.toml` (`TODAYS_AGENT_URL`), `functions/api/lot-inventory.ts` (`DEFAULT_APPS_SCRIPT_URL`), and `scripts/sync-lots-from-master-sheet.mjs` (`API_URL`).
+3. **Smoke test after every deploy:** `curl -s https://buildodyssey.com/api/todays-agent` should return `{"available":true,...}` (or `{"available":false,"reason":"no matching event today"}` on a legit empty day). If it returns `"calendar not accessible"`, the deploy went out under the wrong identity.
+
+The safety net on the website side: `contact.ts` now adds a `⚠️ ROTATION CAL BROKEN` prefix to email subjects when the Apps Script returns "calendar not accessible." So if this happens again, the next form submission immediately surfaces the problem in the team's inbox.
+
 ## Architecture context
 
 The website talks to Apps Script via Cloudflare Pages Functions (proxies). Direct browser → Apps Script fetches would fail CORS, so we route through `/api/todays-agent` (Pages Function) → Apps Script `?api=todays-agent`. The Pages Function caches responses at the edge.
 
-The Apps Script web app is deployed as "Execute as: Me (Curtis), Who has access: Anyone". That's required for unauthenticated reads from the website.
+The Apps Script web app is deployed as "Execute as: Me (curtis@buildodyssey.com), Who has access: Anyone". The "Anyone" access is required for unauthenticated reads from the website. The specific Me = `curtis@buildodyssey.com` (NOT `curtisjward@gmail.com`) — see "Deploy identity (critical — burned us once)" above.
 
 ---
 
