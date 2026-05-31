@@ -20,4 +20,4 @@ FORM_BCC = "curtis@buildodyssey.com,derek@buildodyssey.com,natasha@buildodyssey.
 
 # Apps Script web app endpoint that returns today's on-call agent for /estimate.
 # Read by functions/api/todays-agent.ts. Public read-only — no secret.
-TODAYS_AGENT_URL = "https://script.google.com/macros/s/AKfycbwig8pHV3LOZlBRHzEMJrKvzyMAcjQFo7R4hsKBTDo_PrRYP3GM5DBYTbAnZUf_AWvZww/exec?api=todays-agent"
+TODAYS_AGENT_URL = "https://script.google.com/macros/s/AKfycbyCBOgU6SyWUAgerb-_2iT9gOJmwgdR4-vRmahXMTIjgfchH7tzCJ1ufNLkVkovjwYnYQ/exec?api=todays-agent"

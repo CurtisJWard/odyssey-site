@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OUT_FILE = join(ROOT, 'src/data/_generatedMasterLots.ts');
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbwig8pHV3LOZlBRHzEMJrKvzyMAcjQFo7R4hsKBTDo_PrRYP3GM5DBYTbAnZUf_AWvZww/exec?api=lot-inventory';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyCBOgU6SyWUAgerb-_2iT9gOJmwgdR4-vRmahXMTIjgfchH7tzCJ1ufNLkVkovjwYnYQ/exec?api=lot-inventory';
 
 // API status → website LotStatus. The sheet uses 'spec-in-progress' which
 // the website renders with a distinct yellow badge.

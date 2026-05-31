@@ -16,7 +16,7 @@ interface Env {
 }
 
 const DEFAULT_APPS_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbwig8pHV3LOZlBRHzEMJrKvzyMAcjQFo7R4hsKBTDo_PrRYP3GM5DBYTbAnZUf_AWvZww/exec?api=lot-inventory';
+  'https://script.google.com/macros/s/AKfycbyCBOgU6SyWUAgerb-_2iT9gOJmwgdR4-vRmahXMTIjgfchH7tzCJ1ufNLkVkovjwYnYQ/exec?api=lot-inventory';
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = context.env.LOT_INVENTORY_URL || DEFAULT_APPS_SCRIPT_URL;
