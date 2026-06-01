@@ -12,4 +12,5 @@ export const specPhotos: Record<string, string> = {
   '653 Grand Canyon':                      '/media/quick-move-ins/653-grand-canyon.jpg',
   '2735 Granite Falls Drive (2026 Parade)': '/media/quick-move-ins/2735-granite-falls-drive.jpg',
   '2690 Granite Falls Drive':               '/media/quick-move-ins/2690-granite-falls-drive.jpg',
+  '2784 Granite Falls Drive':               '/media/quick-move-ins/2784-granite-falls-drive.jpg',
 };
