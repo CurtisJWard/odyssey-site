@@ -21,4 +21,5 @@ export const specPhotos: Record<string, string> = {
   '6540 Crown Crescent':                    '/media/quick-move-ins/6540-crown-crescent.jpg',
   '1661 Sand Bar Street':                   '/media/quick-move-ins/1661-sand-bar-street.jpg',
   '5471 Boardwalk Rd':                      '/media/quick-move-ins/5471-boardwalk-rd.jpg',
+  '5505 Boardwalk Rd':                      '/media/quick-move-ins/5505-boardwalk-rd.jpg',
 };
