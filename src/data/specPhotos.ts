@@ -19,5 +19,5 @@ export const specPhotos: Record<string, string> = {
   '209 N 4117 E':                           '/media/quick-move-ins/209-n-4117-e.jpg',
   '3083 Lancer Avenue':                     '/media/quick-move-ins/3083-lancer-ave.jpg',
   '6540 Crown Crescent':                    '/media/quick-move-ins/6540-crown-crescent.jpg',
-  '5471 Boardwalk Rd':                      '/media/quick-move-ins/5471-boardwalk-rd.jpg',
+  '1661 Sand Bar Street':                   '/media/quick-move-ins/1661-sand-bar-street.jpg',
 };
