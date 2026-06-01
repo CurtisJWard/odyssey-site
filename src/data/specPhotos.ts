@@ -22,4 +22,6 @@ export const specPhotos: Record<string, string> = {
   '1661 Sand Bar Street':                   '/media/quick-move-ins/1661-sand-bar-street.jpg',
   '5471 Boardwalk Rd':                      '/media/quick-move-ins/5471-boardwalk-rd.jpg',
   '5505 Boardwalk Rd':                      '/media/quick-move-ins/5505-boardwalk-rd.jpg',
+  '2821 Granite Falls Drive':               '/media/quick-move-ins/2821-granite-falls-drive.jpg',
+  '3374 Chester Drive':                     '/media/quick-move-ins/3374-chester-drive.jpg',
 };
