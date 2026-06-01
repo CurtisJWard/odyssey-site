@@ -97,17 +97,39 @@ const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
   </head>
   <body class="bg-odyssey-bone">
     <slot />
-    <!-- Scroll reveal — fires after paint, no layout shift -->
+    <!-- Scroll reveal + card lift — auto-targets every page, no manual tagging needed -->
     <script>
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('is-visible');
-            io.unobserve(e.target);
-          }
+      (() => {
+        // Auto-tag every <section> as a reveal target
+        document.querySelectorAll('section').forEach(s => {
+          // Skip the very first section (hero) — it has its own CSS entrance
+          if (s === document.querySelector('section')) return;
+          s.classList.add('reveal');
         });
-      }, { threshold: 0.12 });
-      document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+
+        // Auto-tag card grids: any grid with 2+ direct children that are <a> or <div>
+        document.querySelectorAll('.grid').forEach(grid => {
+          const kids = [...grid.children];
+          if (kids.length >= 2) grid.classList.add('reveal-group');
+        });
+
+        // Auto-tag card-lift: any <a> or <div> inside a reveal-group
+        document.querySelectorAll('.reveal-group > a, .reveal-group > div').forEach(card => {
+          card.classList.add('card-lift');
+        });
+
+        // Run the observer
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-visible');
+              io.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+      })();
     </script>
   </body>
 </html>
