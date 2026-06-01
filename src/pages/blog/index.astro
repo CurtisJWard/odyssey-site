@@ -11,35 +11,7 @@ const posts = [
     slug: 'how-much-does-it-cost-to-build-in-eastern-idaho',
     title: 'How Much Does It Cost to Build in Eastern Idaho?',
     image: '/media/communities/sand-creek-estates-hero.jpg',
-    summary: "It's the first question every buyer asks — and the honest answer is: it depends. Here's how to get a real number fast.",
-    content: `
-      <p>If you've been searching for a straight answer on what it costs to build a new home in Eastern Idaho, you've probably noticed that nobody wants to give you one. You get vague ranges, disclaimers, and a lot of "it depends."</p>
-      <p>Here's the truth: it <em>does</em> depend — on the floor plan, the lot, the community, your permit costs, and every upgrade decision you make along the way. That's exactly why a single number published on a website would be misleading. Two homes built on the same street by the same builder can have meaningfully different price tags based on the choices made inside them.</p>
-      <p>But "it depends" isn't good enough when you're trying to plan your life. You need a real number — and you need it before you sit down with a sales rep, not after.</p>
-
-      <h2>We Built a Tool for This</h2>
-      <p>Odyssey Homes developed something we haven't seen any other builder in Eastern Idaho offer: a fully interactive, self-serve home cost estimator that lets you build out your contract — in real time — before you ever talk to anyone.</p>
-      <p>This isn't a "contact us for pricing" form. It's not a ballpark calculator that spits out a range. It's a step-by-step tool that walks you through exactly what we walk every buyer through in a sales meeting — floor plan selection, lot, permits, and every upgrade category — and shows you a running total as you go.</p>
-      <p>By the time you're done, you have a complete, itemized cost summary built from our actual prices. Not an estimate of an estimate. The real numbers.</p>
-
-      <h2>How It Works</h2>
-      <p>The tool is available at <a href="/estimate/">buildodyssey.com/estimate</a>. Here's what to expect:</p>
-      <ol>
-        <li><strong>Pick your floor plan.</strong> Browse Odyssey's full plan lineup with square footage, bedroom count, and base pricing. See exactly what you're starting with.</li>
-        <li><strong>Choose your lot and community.</strong> Lot costs vary by community and location within it. The tool shows available lots with their actual prices.</li>
-        <li><strong>Add your upgrades.</strong> This is where most of the variation happens. Walk through every category — cabinets, flooring, countertops, electrical, HVAC, and more — and select your tier. The total updates live.</li>
-        <li><strong>Get your summary.</strong> At the end, you have a complete cost breakdown you can review, save, and share with your spouse or financial advisor before your first conversation with us.</li>
-      </ol>
-
-      <h2>Why This Changes Everything</h2>
-      <p>Most buyers walk into a builder's office without any idea what they're about to spend. They fall in love with a floor plan, get excited about upgrades, and then experience sticker shock when the final number comes together. That's a frustrating experience for everyone.</p>
-      <p>Our estimator flips that entirely. You come in informed. You've already made your upgrade decisions, you know what your number looks like, and the conversation with your sales rep can focus on moving forward — not on managing expectations.</p>
-      <p>We built this tool ourselves from the ground up because we believe buyers deserve transparency. No other builder in Eastern Idaho gives you this kind of access before you've committed to anything. It's one of the things we're most proud of.</p>
-
-      <h2>Try It Now</h2>
-      <p>Head to <a href="/estimate/">buildodyssey.com/estimate</a> and build your first estimate. It takes about five minutes, it's completely free, and you're not obligated to do anything with it. But we think once you see your number — your real number, built from your actual choices — the path forward gets a lot clearer.</p>
-      <p>Questions after you've run through it? <a href="/lets-talk/">Reach out here</a> and one of our team members will walk through it with you.</p>
-    `,
+    summary: "It's the first question every buyer asks — and the honest answer is: it depends. Here's how to get a real number in minutes.",
   },
 ];
 ---
@@ -55,23 +27,22 @@ const posts = [
   </section>
 
   <section class="bg-odyssey-bone">
-    <div class="max-w-3xl mx-auto px-6 lg:px-8 py-20">
-      {posts.map(post => (
-        <article>
-          <div class="aspect-[16/7] bg-odyssey-sand overflow-hidden rounded-lg mb-10">
-            <img src={post.image} alt={post.title} class="w-full h-full object-cover" />
-          </div>
-          <h2 class="text-3xl lg:text-4xl font-bold text-odyssey-charcoal leading-tight">{post.title}</h2>
-          <p class="mt-4 text-lg text-odyssey-stone-dark leading-relaxed">{post.summary}</p>
-          <div class="mt-10 prose prose-lg max-w-none text-odyssey-stone-dark
-            prose-headings:text-odyssey-charcoal prose-headings:font-semibold
-            prose-a:text-odyssey-accent prose-a:no-underline hover:prose-a:underline
-            prose-ol:pl-6 prose-li:my-1"
-            set:html={post.content}
-          />
-        </article>
-      ))}
-      <p class="mt-16 text-sm text-odyssey-stone italic">More posts coming soon.</p>
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+      <div class="grid md:grid-cols-3 gap-8">
+        {posts.map(post => (
+          <a href={`/blog/${post.slug}/`} class="group bg-white rounded overflow-hidden shadow-sm hover:shadow-md transition-shadow block">
+            <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
+              <img src={post.image} alt={post.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-odyssey-charcoal leading-tight group-hover:text-odyssey-accent transition-colors">{post.title}</h3>
+              <p class="mt-3 text-sm text-odyssey-stone-dark leading-relaxed">{post.summary}</p>
+              <p class="mt-4 text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Read more →</p>
+            </div>
+          </a>
+        ))}
+      </div>
+      <p class="mt-12 text-sm text-odyssey-stone italic">More posts coming soon.</p>
     </div>
   </section>
 
