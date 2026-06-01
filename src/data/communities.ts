@@ -140,7 +140,7 @@ export const communities: Community[] = [
     status: 'selling',
     description: 'A vibrant, welcoming community in Idaho Falls designed for those who want the perfect balance of comfort and style.',
     longDescription: 'Sand Creek Estates is our newest active community in Idaho Falls — designed for buyers who want the perfect balance of comfort and style in a vibrant, welcoming neighborhood setting.',
-    image: '/media/ruibxzeq/20250314_124453-opt.jpg',
+    image: '/media/communities/sand-creek-estates-hero.jpg',
     address: 'Boardwalk Rd, Idaho Falls, ID',
     platMaps: [
       {
