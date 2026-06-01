@@ -99,42 +99,39 @@ html {
 .reveal-group.is-visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.45s; }
 .reveal-group.is-visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.55s; }
 
-/* ── Card hover lift + shimmer shine ── */
+/* ── Slide in from sides ── */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-52px) scale(0.97);
+  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+              transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(52px) scale(0.97);
+  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+              transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-left.is-visible,
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+/* ── Card hover lift ── */
 .card-lift {
   transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
               box-shadow 0.3s cubic-bezier(0.22,1,0.36,1);
-  position: relative;
-  overflow: hidden;
 }
 .card-lift:hover {
   transform: translateY(-8px) scale(1.015);
   box-shadow: 0 20px 48px rgba(43, 46, 131, 0.16);
 }
-/* Shine sweep on hover */
-.card-lift::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 30%,
-    rgba(255,255,255,0.18) 50%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-  background-position: -200% center;
-  transition: background-position 0s;
-  pointer-events: none;
-}
-.card-lift:hover::after {
-  background-position: 200% center;
-  transition: background-position 0.5s ease;
-}
 
 /* ── Reduced motion — disable everything ── */
 @media (prefers-reduced-motion: reduce) {
   .hero-eyebrow, .hero-headline, .hero-sub, .hero-ctas, .hero-rate,
-  .cta-pulse, .reveal, .reveal-group > * {
+  .cta-pulse, .reveal, .reveal-left, .reveal-right, .reveal-group > * {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
@@ -144,7 +141,6 @@ html {
     transform: none;
     box-shadow: none;
   }
-  .card-lift::after { display: none; }
 }
 
 body {

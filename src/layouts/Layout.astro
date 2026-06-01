@@ -100,25 +100,41 @@ const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
     <!-- Scroll reveal + card lift — auto-targets every page, no manual tagging needed -->
     <script>
       (() => {
-        // Auto-tag every <section> as a reveal target
-        document.querySelectorAll('section').forEach(s => {
-          // Skip the very first section (hero) — it has its own CSS entrance
-          if (s === document.querySelector('section')) return;
-          s.classList.add('reveal');
+        const sections = [...document.querySelectorAll('section')];
+        const firstSection = sections[0];
+        let sideIndex = 0;
+
+        sections.forEach(s => {
+          // Skip hero — has its own CSS entrance animation
+          if (s === firstSection) return;
+
+          // 2-column grids inside this section: left child from left, right from right
+          const twoColGrids = [...s.querySelectorAll('.grid')].filter(g => {
+            const cols = getComputedStyle(g).gridTemplateColumns;
+            return cols.split(' ').length >= 2 && g.children.length === 2;
+          });
+
+          if (twoColGrids.length > 0) {
+            twoColGrids.forEach(grid => {
+              grid.children[0].classList.add('reveal-left');
+              grid.children[1].classList.add('reveal-right');
+            });
+          } else {
+            // Single-column section: alternate left/right on each
+            s.classList.add(sideIndex % 2 === 0 ? 'reveal-left' : 'reveal-right');
+            sideIndex++;
+          }
+
+          // Card grids: 3+ children stagger from bottom
+          s.querySelectorAll('.grid').forEach(grid => {
+            if (grid.children.length >= 3) {
+              grid.classList.add('reveal-group');
+              [...grid.children].forEach(c => c.classList.add('card-lift'));
+            }
+          });
         });
 
-        // Auto-tag card grids: any grid with 2+ direct children that are <a> or <div>
-        document.querySelectorAll('.grid').forEach(grid => {
-          const kids = [...grid.children];
-          if (kids.length >= 2) grid.classList.add('reveal-group');
-        });
-
-        // Auto-tag card-lift: any <a> or <div> inside a reveal-group
-        document.querySelectorAll('.reveal-group > a, .reveal-group > div').forEach(card => {
-          card.classList.add('card-lift');
-        });
-
-        // Run the observer
+        // Observe everything
         const io = new IntersectionObserver((entries) => {
           entries.forEach(e => {
             if (e.isIntersecting) {
@@ -128,7 +144,7 @@ const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
           });
         }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
-        document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-group').forEach(el => io.observe(el));
       })();
     </script>
   </body>
