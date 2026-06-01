@@ -11,7 +11,7 @@
     "sync-jobs": "node scripts/sync-odyssey-jobs.mjs",
     "sync-all": "npm run sync-jobs && npm run sync-lots",
     "prebuild": "npm run sync-all",
-    "build": "astro build",
+    "build": "astro build && node scripts/generate-sitemap.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "deploy": "npm run build && wrangler pages deploy dist"
