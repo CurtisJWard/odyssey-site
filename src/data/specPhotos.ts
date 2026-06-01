@@ -13,4 +13,7 @@ export const specPhotos: Record<string, string> = {
   '2735 Granite Falls Drive (2026 Parade)': '/media/quick-move-ins/2735-granite-falls-drive.jpg',
   '2690 Granite Falls Drive':               '/media/quick-move-ins/2690-granite-falls-drive.jpg',
   '2784 Granite Falls Drive':               '/media/quick-move-ins/2784-granite-falls-drive.jpg',
+  '5025 Eagle Creek Rd':                    '/media/quick-move-ins/5025-eagle-creek-rd.jpg',
+  '5085 Eagle Creek Rd':                    '/media/quick-move-ins/5085-eagle-creek-rd.jpg',
+  '5055 Eagle Creek Rd':                    '/media/quick-move-ins/5055-eagle-creek-rd.jpg',
 };
