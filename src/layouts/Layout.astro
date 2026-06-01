@@ -97,5 +97,17 @@ const canonicalUrl = canonical || `${PRODUCTION_BASE}${Astro.url.pathname}`;
   </head>
   <body class="bg-odyssey-bone">
     <slot />
+    <!-- Scroll reveal — fires after paint, no layout shift -->
+    <script>
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-visible');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+    </script>
   </body>
 </html>

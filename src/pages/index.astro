@@ -21,22 +21,22 @@ const featuredPlans = livePlans.slice(0, 3);
       <div class="absolute inset-0 bg-gradient-to-r from-odyssey-charcoal/85 via-odyssey-charcoal/55 to-odyssey-charcoal/30"></div>
     </div>
     <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-28 lg:py-44">
-      <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Eastern Idaho · New Construction Homes</p>
-      <h1 class="mt-6 text-5xl lg:text-7xl font-bold tracking-tight max-w-4xl leading-[1.05] text-white">
+      <p class="hero-eyebrow text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Eastern Idaho · New Construction Homes</p>
+      <h1 class="hero-headline mt-6 text-5xl lg:text-7xl font-bold tracking-tight max-w-4xl leading-[1.05] text-white">
         {site.tagline}
       </h1>
-      <p class="mt-8 text-xl lg:text-2xl text-odyssey-cream/90 max-w-2xl leading-relaxed">
+      <p class="hero-sub mt-8 text-xl lg:text-2xl text-odyssey-cream/90 max-w-2xl leading-relaxed">
         Building your dream home should be an inspiring and seamless experience.
       </p>
-      <div class="mt-12 flex flex-wrap gap-4">
-        <a href="/semi-custom-home-floor-plans/" class="inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
+      <div class="hero-ctas mt-12 flex flex-wrap gap-4">
+        <a href="/semi-custom-home-floor-plans/" class="cta-pulse inline-block bg-odyssey-accent hover:bg-odyssey-accent-deep text-white font-semibold py-3 px-7 rounded transition-colors">
           Browse Floor Plans
         </a>
         <a href="/lets-talk/" class="inline-block bg-white/10 hover:bg-white/20 backdrop-blur text-white font-semibold py-3 px-7 rounded transition-colors border border-white/20">
           Let's Talk
         </a>
       </div>
-      <p class="mt-10 text-sm text-odyssey-cream/80">
+      <p class="hero-rate mt-10 text-sm text-odyssey-cream/80">
         Today's interest rate: <span class="font-bold text-odyssey-accent-light">{site.interestRate}</span>
       </p>
     </div>
@@ -58,12 +58,12 @@ const featuredPlans = livePlans.slice(0, 3);
   </section>
 
   <!-- Why Odyssey -->
-  <section class="bg-odyssey-bone">
+  <section class="bg-odyssey-bone reveal">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32">
       <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Crafting Beautiful, Semi-Custom Homes</p>
       <h2 class="mt-4 text-4xl lg:text-5xl font-semibold tracking-tight max-w-3xl text-odyssey-charcoal">Why Choose Odyssey Homes?</h2>
 
-      <div class="mt-16 grid md:grid-cols-2 gap-12">
+      <div class="reveal-group mt-16 grid md:grid-cols-2 gap-12">
         <div>
           <div class="h-[3px] w-12 bg-odyssey-accent mb-6"></div>
           <h3 class="text-2xl font-semibold text-odyssey-charcoal">Semi-Custom Builds Tailored to You</h3>
@@ -97,7 +97,7 @@ const featuredPlans = livePlans.slice(0, 3);
   </section>
 
   <!-- Featured Plans -->
-  <section class="bg-white">
+  <section class="bg-white reveal">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32">
       <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Floor Plans</p>
       <h2 class="mt-4 text-4xl lg:text-5xl font-semibold tracking-tight max-w-3xl text-odyssey-charcoal">Browse Our Customizable Floor Plans</h2>
@@ -105,9 +105,9 @@ const featuredPlans = livePlans.slice(0, 3);
         Twelve base plans, three exterior styles each. Pick one, make it yours.
       </p>
 
-      <div class="mt-12 grid md:grid-cols-3 gap-8">
+      <div class="reveal-group mt-12 grid md:grid-cols-3 gap-8">
         {featuredPlans.map(plan => (
-          <a href={`/semi-custom-home-floor-plans/${plan.slug}/`} class="group block bg-odyssey-bone rounded overflow-hidden hover:shadow-lg transition-shadow">
+          <a href={`/semi-custom-home-floor-plans/${plan.slug}/`} class="card-lift group block bg-odyssey-bone rounded overflow-hidden">
             <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
               {plan.exteriorImage && (
                 <img src={plan.exteriorImage} alt={plan.name} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -132,7 +132,7 @@ const featuredPlans = livePlans.slice(0, 3);
   </section>
 
   <!-- Communities -->
-  <section class="bg-odyssey-bone">
+  <section class="bg-odyssey-bone reveal">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32">
       <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Communities</p>
       <h2 class="mt-4 text-4xl lg:text-5xl font-semibold tracking-tight max-w-3xl text-odyssey-charcoal">Discover Our Communities</h2>
@@ -140,9 +140,9 @@ const featuredPlans = livePlans.slice(0, 3);
         Find the best location for your semi-custom home.
       </p>
 
-      <div class="mt-12 grid md:grid-cols-3 gap-8">
+      <div class="reveal-group mt-12 grid md:grid-cols-3 gap-8">
         {communities.map(c => (
-          <div class="group bg-white rounded overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="card-lift group bg-white rounded overflow-hidden">
             <div class="aspect-[4/3] bg-odyssey-sand overflow-hidden">
               <img src={c.image} alt={c.name} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
@@ -162,7 +162,7 @@ const featuredPlans = livePlans.slice(0, 3);
   </section>
 
   <!-- Cross-promo to Guardian — locked link per Curtis -->
-  <section class="bg-odyssey-stone-dark text-odyssey-cream">
+  <section class="bg-odyssey-stone-dark text-odyssey-cream reveal">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 grid md:grid-cols-2 gap-12 items-center">
       <div>
         <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent-light uppercase">Looking for a fully custom home?</p>
@@ -189,7 +189,7 @@ const featuredPlans = livePlans.slice(0, 3);
   <VisitUs variant="section" />
 
   <!-- Out-of-state buyer welcome -->
-  <section class="bg-odyssey-bone">
+  <section class="bg-odyssey-bone reveal">
     <div class="max-w-5xl mx-auto px-6 lg:px-8 py-20 text-center">
       <p class="text-sm font-semibold tracking-[0.2em] text-odyssey-accent uppercase">Moving to Eastern Idaho?</p>
       <h2 class="mt-4 text-3xl lg:text-4xl font-semibold tracking-tight text-odyssey-charcoal">
@@ -210,7 +210,7 @@ const featuredPlans = livePlans.slice(0, 3);
   </section>
 
   <!-- Contact -->
-  <section class="bg-white">
+  <section class="bg-white reveal">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 lg:py-32 grid md:grid-cols-2 gap-16 items-start">
       <div>
         <ContactForm

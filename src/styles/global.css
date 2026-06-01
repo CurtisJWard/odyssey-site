@@ -33,6 +33,87 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ─── Animations ──────────────────────────────────────────────────────────────
+   All animations respect prefers-reduced-motion. Zero extra network requests —
+   pure CSS keyframes + a tiny IntersectionObserver script in Layout.astro.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Keyframes */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(43, 46, 131, 0); }
+  50%       { box-shadow: 0 0 0 8px rgba(43, 46, 131, 0.18); }
+}
+
+/* ── Hero entrance — staggered fade-in on load ── */
+.hero-eyebrow  { animation: fadeUp 0.6s ease both; animation-delay: 0.1s; }
+.hero-headline { animation: fadeUp 0.7s ease both; animation-delay: 0.25s; }
+.hero-sub      { animation: fadeUp 0.7s ease both; animation-delay: 0.4s; }
+.hero-ctas     { animation: fadeUp 0.7s ease both; animation-delay: 0.55s; }
+.hero-rate     { animation: fadeIn 0.6s ease both; animation-delay: 0.75s; }
+
+/* ── CTA pulse — draws the eye to the primary button ── */
+.cta-pulse {
+  animation: ctaPulse 2.8s ease-in-out 1.4s 3;
+}
+
+/* ── Scroll fade-up — applied by IntersectionObserver ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children inside a reveal-group */
+.reveal-group > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal-group.is-visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+.reveal-group.is-visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.1s; }
+.reveal-group.is-visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.2s; }
+.reveal-group.is-visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.3s; }
+.reveal-group.is-visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.4s; }
+.reveal-group.is-visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.5s; }
+
+/* ── Card hover lift ── */
+.card-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(43, 46, 131, 0.12);
+}
+
+/* ── Reduced motion — disable everything ── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow, .hero-headline, .hero-sub, .hero-ctas, .hero-rate,
+  .cta-pulse, .reveal, .reveal-group > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .card-lift:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-odyssey-text);
