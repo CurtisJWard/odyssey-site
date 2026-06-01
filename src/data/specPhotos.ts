@@ -17,4 +17,5 @@ export const specPhotos: Record<string, string> = {
   '5085 Eagle Creek Rd':                    '/media/quick-move-ins/5085-eagle-creek-rd.jpg',
   '5055 Eagle Creek Rd':                    '/media/quick-move-ins/5055-eagle-creek-rd.jpg',
   '209 N 4117 E':                           '/media/quick-move-ins/209-n-4117-e.jpg',
+  '3083 Lancer Avenue':                     '/media/quick-move-ins/3083-lancer-ave.jpg',
 };
