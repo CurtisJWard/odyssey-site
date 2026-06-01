@@ -7,6 +7,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { communities } from '../../data/communities';
 import { specHomesByCommunity, totalAvailableSpecs, type SpecHomeStatus } from '../../data/specHomes';
 import { plans } from '../../data/plans';
+import { specPhotos } from '../../data/specPhotos';
 
 const statusLabels: Record<SpecHomeStatus, string> = {
   'available': 'Available',
@@ -47,130 +48,94 @@ const totalAvailable = totalAvailableSpecs();
     </div>
   </section>
 
-  <!-- Per-community spec inventory -->
+  <!-- Per-community spec inventory — card layout -->
   {communities.map((community) => {
     const specs = specHomesByCommunity(community.slug);
     if (specs.length === 0) return null;
     return (
       <section class="bg-odyssey-bone" id={community.slug}>
         <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
-          <div class="flex items-center justify-between gap-4 flex-wrap mb-8">
+          <div class="flex items-center justify-between gap-4 flex-wrap mb-10">
             <h2 class="text-3xl lg:text-4xl font-semibold text-odyssey-charcoal">{community.name}</h2>
             <span class="text-sm text-odyssey-stone uppercase tracking-wider font-semibold">{specs.filter(s => s.status === 'available').length} available</span>
           </div>
 
-          <div class="bg-white rounded shadow-sm overflow-hidden">
-            <!-- Desktop table -->
-            <div class="hidden md:block">
-              <table class="w-full text-sm">
-                <thead class="bg-odyssey-charcoal text-odyssey-cream">
-                  <tr>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Address</th>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Lot</th>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Floor Plan</th>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Tentative Completion</th>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Price</th>
-                    <th class="px-4 py-3 text-left font-semibold uppercase tracking-wider text-xs">Status</th>
-                    <th class="px-4 py-3 text-right font-semibold uppercase tracking-wider text-xs"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {specs.map((spec, idx) => {
-                    const dim = spec.status === 'sold';
-                    const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-odyssey-bone';
-                    const plan = planBySlug.get(spec.planSlug);
-                    const planLive = plan?.status === 'live';
-                    return (
-                      <tr class={`${rowBg} ${dim ? 'opacity-60' : ''} border-t border-odyssey-stone/10`}>
-                        <td class="px-4 py-3 font-semibold text-odyssey-charcoal">{spec.address}</td>
-                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.lotNumber}</td>
-                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">
-                          {planLive ? (
-                            <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
-                          ) : (
-                            <span class="font-semibold">{plan?.name || spec.planSlug}</span>
-                          )}
-                          {plan?.beds && plan?.totalSqFt && (
-                            <span class="block text-xs text-odyssey-stone mt-0.5">{plan.totalSqFt.toLocaleString()} sq ft · {plan.beds} bed · {plan.baths} bath</span>
-                          )}
-                        </td>
-                        <td class="px-4 py-3 text-odyssey-stone-dark whitespace-nowrap">{spec.tentativeCompletion}</td>
-                        <td class="px-4 py-3 text-odyssey-charcoal font-semibold whitespace-nowrap">{formatPrice(spec.price)}</td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                          <span class={
-                            spec.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
-                            spec.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
-                            spec.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
-                            'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
-                          }>
-                            {statusLabels[spec.status]}
-                          </span>
-                        </td>
-                        <td class="px-4 py-3 text-right whitespace-nowrap">
-                          {spec.status === 'available' && (
-                            <a href="/lets-talk/" class="text-xs font-semibold uppercase tracking-wider text-odyssey-accent hover:text-odyssey-accent-deep">Get info →</a>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {specs.map((spec) => {
+              const plan = planBySlug.get(spec.planSlug);
+              const planLive = plan?.status === 'live';
+              const photo = specPhotos[spec.address];
+              return (
+                <div class={`bg-white rounded-lg shadow-sm overflow-hidden flex flex-col ${spec.status === 'sold' ? 'opacity-60' : ''}`}>
+                  <!-- Photo or placeholder -->
+                  <div class="aspect-video bg-odyssey-sand overflow-hidden">
+                    {photo ? (
+                      <img
+                        src={photo}
+                        alt={`${spec.address} — home under construction`}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div class="w-full h-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-odyssey-stone/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                          <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
 
-            <!-- Mobile cards -->
-            <div class="md:hidden divide-y divide-odyssey-stone/10">
-              {specs.map(spec => {
-                const dim = spec.status === 'sold';
-                const plan = planBySlug.get(spec.planSlug);
-                const planLive = plan?.status === 'live';
-                return (
-                  <div class={`p-5 ${dim ? 'opacity-60' : ''}`}>
-                    <div class="flex items-start justify-between gap-3">
+                  <!-- Card body -->
+                  <div class="p-5 flex flex-col flex-1">
+                    <div class="flex items-start justify-between gap-3 mb-4">
                       <div>
-                        <p class="font-semibold text-odyssey-charcoal text-lg">{spec.address}</p>
-                        <p class="text-sm text-odyssey-stone-dark">{spec.lotNumber}</p>
+                        <p class="font-semibold text-odyssey-charcoal text-lg leading-snug">{spec.address}</p>
+                        <p class="text-sm text-odyssey-stone-dark mt-0.5">{spec.lotNumber}</p>
                       </div>
                       <span class={
-                        spec.status === 'available' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
-                        spec.status === 'reserved' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
-                        spec.status === 'under-contract' ? 'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
-                        'inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
-                      }>
-                        {statusLabels[spec.status]}
-                      </span>
+                        spec.status === 'available'      ? 'shrink-0 inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-accent text-white' :
+                        spec.status === 'reserved'       ? 'shrink-0 inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-sand text-odyssey-charcoal' :
+                        spec.status === 'under-contract' ? 'shrink-0 inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone text-white' :
+                        'shrink-0 inline-block px-2.5 py-1 rounded text-xs font-semibold bg-odyssey-stone/30 text-odyssey-stone-dark'
+                      }>{statusLabels[spec.status]}</span>
                     </div>
-                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm flex-1">
                       <div>
-                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Plan</p>
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone mb-0.5">Floor Plan</p>
                         {planLive ? (
                           <a href={`/semi-custom-home-floor-plans/${spec.planSlug}/`} class="text-odyssey-accent hover:underline font-semibold">{plan?.name}</a>
                         ) : (
-                          <p class="font-semibold text-odyssey-charcoal">{plan?.name || spec.planSlug}</p>
+                          <p class="font-semibold text-odyssey-charcoal">{plan?.name || (spec.planSlug ? spec.planSlug : 'TBD')}</p>
                         )}
                         {plan?.totalSqFt && plan?.beds && (
                           <p class="text-xs text-odyssey-stone mt-0.5">{plan.totalSqFt.toLocaleString()} sf · {plan.beds}br · {plan.baths}ba</p>
                         )}
                       </div>
                       <div>
-                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Tentative Completion</p>
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone mb-0.5">Completion</p>
                         <p class="font-semibold text-odyssey-stone-dark">{spec.tentativeCompletion}</p>
                       </div>
                       <div class="col-span-2">
-                        <p class="text-xs uppercase tracking-wider text-odyssey-stone">Price</p>
-                        <p class="font-semibold text-odyssey-charcoal">{formatPrice(spec.price)}</p>
+                        <p class="text-xs uppercase tracking-wider text-odyssey-stone mb-0.5">Price</p>
+                        <p class="font-semibold text-odyssey-charcoal text-base">{formatPrice(spec.price)}</p>
                       </div>
                     </div>
+
                     {spec.notes && (
                       <p class="mt-3 text-xs text-odyssey-stone italic">{spec.notes}</p>
                     )}
+
                     {spec.status === 'available' && (
-                      <a href="/lets-talk/" class="mt-4 inline-block text-xs font-semibold uppercase tracking-wider text-odyssey-accent">Get info →</a>
+                      <a href="/lets-talk/" class="mt-5 inline-block text-center bg-odyssey-accent hover:bg-odyssey-accent-deep text-white text-sm font-semibold py-2.5 px-4 rounded transition-colors">
+                        Get info →
+                      </a>
                     )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
