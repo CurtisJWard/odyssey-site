@@ -9,5 +9,6 @@
 
 export const specPhotos: Record<string, string> = {
   '661 Glacier Avenue': '/media/quick-move-ins/661-glacier-ave.jpg',
-  '653 Grand Canyon':   '/media/quick-move-ins/653-grand-canyon.jpg',
+  '653 Grand Canyon':                      '/media/quick-move-ins/653-grand-canyon.jpg',
+  '2735 Granite Falls Drive (2026 Parade)': '/media/quick-move-ins/2735-granite-falls-drive.jpg',
 };
